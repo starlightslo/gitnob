@@ -9,3 +9,4 @@ var gitRouter = require('./routes/git');
 
 // Git
 app.get('/api/git/repository', [gitRouter.list]);
+app.get('/api/git/repository/:repository', [gitRouter.get]);

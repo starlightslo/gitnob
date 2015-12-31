@@ -1,6 +1,6 @@
 {
   "name": "gitnob",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "This is a simple github developed by Node.js",
   "main": "index.js",
   "scripts": {

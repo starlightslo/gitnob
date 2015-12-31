@@ -1,6 +1,7 @@
 module.exports = {
 	'port': 8888,
 	'secret': '1234567890abcdefghijklmnopqrstuvwxyz',
+	'gitPath': '/Users/Tony/Documents/tony/',
 	'logConfiguration': {
 		name: 'GitNob',
 		streams: [{

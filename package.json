@@ -1,0 +1,19 @@
+{
+  "name": "gitnob",
+  "version": "1.0.0",
+  "description": "This is a simple github developed by Node.js",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/starlightslo/gitnob.git"
+  },
+  "author": "Tony Huang",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/starlightslo/gitnob/issues"
+  },
+  "homepage": "https://github.com/starlightslo/gitnob#readme"
+}

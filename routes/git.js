@@ -11,24 +11,51 @@ var get = function(req, res, next) {
 		}
 		var branchList = [];
 		var tagList = [];
+		var defaultBranch = '';
+		var commitList = [];
 		// Get branch
 		git.listBranch(repository).then(function(branchArray) {
 			branchList = branchArray;
-			console.log(branchList);
 			return git.listTag(repository);
 		})
 		// Get Tag
 		.then(function(tagArray) {
 			tagList = tagArray;
-			console.log(tagList);
+			return repository.getCurrentBranch();
+		})
+		// Get Default branch
+		.then(function(reference) {
+			defaultBranch = reference.name();
+			return git.listCommit(repository, defaultBranch);
+		})
+		// Get commit
+		.then(function(commits) {
+			for (var i in commits) {
+				commitList.push({
+					id: commits[i].id().tostrS(),
+					author: commits[i].author().toString(),
+					committer: commits[i].committer().toString(),
+					date: commits[i].date(),
+					message: commits[i].message(),
+					messageRaw: commits[i].messageRaw(),
+					messageEncoding: commits[i].messageEncoding(),
+					summary: commits[i].summary()
+				});
+			}
+		}, function(err) {
+			req.log.error('Error: ' + err);
+			res.status(500).send('Server Error: ' + err);
+			next();
 		})
 		.done(function() {
 			var resp = {
 				code: 200,
 				result: 'OK',
 				data: {
+					defaultBranch: defaultBranch,
 					branchList: branchList,
-					tagList: tagList
+					tagList: tagList,
+					commitList: commitList
 				}
 			}
 			req.log.info({

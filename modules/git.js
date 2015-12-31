@@ -15,6 +15,27 @@ var listTag = function(repo) {
 	return Git.Tag.list(repo);
 }
 
+var listCommit = function(repo, branch) {
+	var deferred = Promise.defer();
+	getCommit(repo, branch).then(function(commit) {
+		var eventEmitter = commit.history();
+		eventEmitter.on('end', function(commits) {
+			return deferred.resolve(commits);
+		});
+		eventEmitter.on('error', function(error) {
+			return deferred.reject(err);
+		});
+		eventEmitter.start();
+	}, function(err) {
+		return deferred.reject(err);
+	});
+	return deferred.promise;
+}
+
+var getCommit = function(repo, branch) {
+	return repo.getBranchCommit(branch);
+}
+
 var listRepo = function(rootPath) {
 	var deferred = Promise.defer();
 	var repositoryList = [];
@@ -32,7 +53,7 @@ var listRepo = function(rootPath) {
 		}).done(function() {
 			numOfRepositories--;
 			if (numOfRepositories == 0) {
-				deferred.resolve(repositoryList);
+				return deferred.resolve(repositoryList);
 			}
 		});
 	}
@@ -43,5 +64,6 @@ module.exports = {
 	listRepo: listRepo,
 	listBranch: listBranch,
 	listTag: listTag,
+	listCommit: listCommit,
 	open: open
 }

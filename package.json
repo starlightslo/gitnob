@@ -6,6 +6,15 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "dependencies": {
+    "express": "4.13.3",
+    "express-session": "1.12.1",
+    "body-parser": "1.14.1",
+    "jsonwebtoken": "5.4.1",
+    "bunyan": "1.5.1",
+    "uuid": "2.0.1",
+    "bluebird": "3.1.1"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/starlightslo/gitnob.git"

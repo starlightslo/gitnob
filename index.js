@@ -21,3 +21,4 @@ app.get('/api/git/repository/:repository', [gitRouter.get]);
 // User
 app.post('/api/user/signup', [dbRouter.init, userRouter.signup]);
 app.post('/api/user/signin', [dbRouter.init, userRouter.signin]);
+app.post('/api/user/logout', [userRouter.logout]);

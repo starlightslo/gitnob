@@ -74,7 +74,7 @@ var signin = function(req, res, next) {
 			});
 		} else {
 			req.session.token = null;
-			
+
 			req.log.info({
 				catalog: 'User',
 				action: 'Signin',
@@ -97,7 +97,48 @@ var signin = function(req, res, next) {
 	});
 }
 
+var logout = function(req, res, next) {
+	var token = req.session.token;
+	if (token) {
+		// verifies secret and checks exp
+		jwt.verify(token, app.get('superSecret'), function(err, userData) {
+			if (err) {
+				req.log.info({
+					catalog: 'User',
+					action: 'Logout',
+					req: token,
+					result: err
+				});
+			} else {
+				req.log.info({
+					catalog: 'User',
+					action: 'Logout',
+					req: token,
+					result: {
+						username: userData.username
+					}
+				});
+			}
+			req.session.token = null;
+			res.json(UserModule.USER_OK);
+			res.end();
+			return;
+		});
+	} else {
+		req.log.info({
+			catalog: 'User',
+			action: 'Logout',
+			req: token,
+			result: 'No user token.'
+		});
+		res.json(UserModule.USER_OK);
+		res.end();
+		return;
+	}
+}
+
 module.exports = {
 	signup: signup,
-	signin: signin
+	signin: signin,
+	logout: logout
 }

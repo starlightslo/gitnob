@@ -185,9 +185,41 @@ var logout = function(req, res, next) {
 	}
 }
 
+var addSshKey = function(req, res, next) {
+	var sshKey = req.body.sshKey;
+	var User = UserModule.init(db, app.settings.config.database.type);
+	User.addSshKey(userData.username, sshKey).then(function(result) {
+		req.log.info({
+			catalog: 'User',
+			action: 'Add SSH Key',
+			req: {
+				userData: userData,
+				sshKey: sshKey
+			},
+			result: result
+		});
+		res.json(result);
+		res.end();
+		return;
+	}, function(err) {
+		req.log.error({
+			catalog: 'User',
+			action: 'Add SSH Key',
+			req: {
+				userData: userData,
+				sshKey: sshKey
+			},
+			error: err
+		});
+		res.status(500).send('Server Error: ' + err);
+		return;
+	});
+}
+
 module.exports = {
 	signup: signup,
 	signin: signin,
 	logout: logout,
-	isLogin: isLogin
+	isLogin: isLogin,
+	addSshKey: addSshKey
 }

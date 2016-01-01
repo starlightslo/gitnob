@@ -81,6 +81,55 @@ var User = function(db, dbType) {
 				});
 			}
 			return deferred.promise;
+		},
+		addSshKey: function(username, sshKey) {
+			var deferred = Promise.defer();
+			var isUserExisting = this.isUserExisting;
+			if (dbType == 'txt') {
+				db.read().then(function(data) {
+					var userList = data.userList;
+					for (var i in userList) {
+						if (userList[i].username == username) {
+							var index = userList[i].sshKeyList.indexOf(sshKey)
+							if (index > -1) {
+								return 'ok';
+							} else {
+								userList[i].sshKeyList.push(sshKey);
+								return db.write(JSON.stringify(data));
+							}
+						}
+					}
+					return deferred.resolve(USER_NOT_FOUND);
+				}, function(err) {
+					return deferred.reject(err);
+				})
+
+				// The result of write
+				.then(function(result) {
+					return isUserExisting(username);
+				}, function(err) {
+					return deferred.reject(err);
+				})
+
+				// The result of user
+				.then(function(result) {
+					if (result.existing) {
+						delete result.data.password;
+						
+						return deferred.resolve({
+							code: USER_OK.code,
+							result: USER_OK.result,
+							data: result.data
+						});
+					} else {
+						// User not found
+						return deferred.resolve(USER_NOT_FOUND);
+					}
+				}, function(err) {
+					return deferred.reject(err);
+				})
+			}
+			return deferred.promise;
 		}
 	}
 }

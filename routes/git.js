@@ -9,7 +9,10 @@ var create = function(req, res, next) {
 		req.log.info({
 			catalog: 'Git',
 			action: 'Create',
-			req: repositoryName,
+			req: {
+				userData: userData,
+				repositoryName: repositoryName
+			},
 			result: 'Missing repositoryName'
 		});
 		res.status(400).send('Bad Request');
@@ -22,7 +25,10 @@ var create = function(req, res, next) {
 		req.log.error({
 			catalog: 'Git',
 			action: 'Create',
-			req: repositoryName,
+			req: {
+				userData: userData,
+				repositoryName: repositoryName
+			},
 			error: 'There have a repository with same name.'
 		});
 		res.status(500).send('There have a repository with same name.');
@@ -34,7 +40,10 @@ var create = function(req, res, next) {
 		req.log.info({
 			catalog: 'Git',
 			action: 'Create',
-			req: repositoryName,
+			req: {
+				userData: userData,
+				repositoryName: repositoryName
+			},
 			result: result
 		});
 		res.json(result);
@@ -44,7 +53,10 @@ var create = function(req, res, next) {
 		req.log.error({
 			catalog: 'Git',
 			action: 'Create',
-			req: repositoryName,
+			req: {
+				userData: userData,
+				repositoryName: repositoryName
+			},
 			error: err
 		});
 		res.status(500).send('Server Error: ' + err);

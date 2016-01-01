@@ -16,6 +16,9 @@
     "bluebird": "3.1.1",
     "nodegit": "0.6.3"
   },
+  "devDependencies": {
+    "mocha": "2.3.3"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/starlightslo/gitnob.git"

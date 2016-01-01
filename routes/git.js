@@ -58,7 +58,10 @@ var destroy = function(req, res, next) {
 		req.log.info({
 			catalog: 'Git',
 			action: 'Destory',
-			req: repositoryName,
+			req: {
+				userData: userData,
+				repositoryName: repositoryName
+			},
 			result: 'Missing repositoryName'
 		});
 		res.status(400).send('Bad Request');
@@ -71,10 +74,28 @@ var destroy = function(req, res, next) {
 		req.log.error({
 			catalog: 'Git',
 			action: 'Destory',
-			req: repositoryName,
+			req: {
+				userData: userData,
+				repositoryName: repositoryName
+			},
 			error: 'No repository.'
 		});
 		res.status(500).send('No repository.');
+		return;
+	}
+
+	// Check permission
+	if (userData.repositoryList.indexOf(repository) < 0) {
+		req.log.info({
+			catalog: 'Git',
+			action: 'Destory',
+			req: {
+				userData: userData,
+				repositoryName: repositoryName
+			},
+			result: 'No Permission.'
+		});
+		res.status(403).send('No Permission');
 		return;
 	}
 
@@ -83,7 +104,10 @@ var destroy = function(req, res, next) {
 		req.log.info({
 			catalog: 'Git',
 			action: 'Destory',
-			req: repositoryName,
+			req: {
+				userData: userData,
+				repositoryName: repositoryName
+			},
 			result: result
 		});
 		res.json(result);
@@ -93,7 +117,10 @@ var destroy = function(req, res, next) {
 		req.log.error({
 			catalog: 'Git',
 			action: 'Destory',
-			req: repositoryName,
+			req: {
+				userData: userData,
+				repositoryName: repositoryName
+			},
 			error: err
 		});
 		res.status(500).send('Server Error: ' + err);

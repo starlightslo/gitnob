@@ -54,16 +54,10 @@ var destroy = function(username, repositoryPath, repositoryName, db, dbType) {
 		var userList = data.userList;
 		for (var i in userList) {
 			if (userList[i].username == username) {
-				var index = userList[i].repositoryList.indexOf(repositoryName)
-				if (index > -1) {
-					userList[i].repositoryList.splice(index, 1);
+				userList[i].repositoryList.splice(index, 1);
 
-					// Write back to database
-					return db.write(JSON.stringify(data));
-				} else {
-					
-					return deferred.resolve(GIT_NO_PERMISSION);
-				}
+				// Write back to database
+				return db.write(JSON.stringify(data));
 			}
 		}
 		return deferred.resolve(UserModule.USER_NOT_FOUND);

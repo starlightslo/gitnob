@@ -73,7 +73,7 @@ module.exports.init = function(dbPath, dbName) {
 
 	// Check data format
 	try {
-		var data = JSON.parse(fs.readFileSync(database, 'utf8'));
+		var data = fs.readFileSync(database, 'utf8');
 		if (!IsJsonString(data)) {
 			fs.writeFileSync(database, JSON.stringify(initData));
 		}

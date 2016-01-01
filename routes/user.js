@@ -1,4 +1,7 @@
 var crypto = require('crypto');
+var jwt = require('jsonwebtoken');
+var TOKEN_EXPRIED = 60 * 60 * 30;
+
 var UserModule = require('../modules/user');
 
 var signup = function(req, res, next) {
@@ -14,14 +17,21 @@ var signup = function(req, res, next) {
 	}
 	var User = UserModule.init(db, app.settings.config.database.type);
 	User.signup(userData).then(function(result) {
-		var resp = result;
+		delete userData.password;
+
+		// Create user token
+		var token = jwt.sign(userData, app.get('superSecret'), {
+			expiresIn: TOKEN_EXPRIED
+		});
+		req.session.token = token;
+
 		req.log.info({
 			catalog: 'User',
 			action: 'Signup',
 			req: userData,
-			result: resp
+			result: result
 		});
-		res.json(resp);
+		res.json(result);
 		res.end();
 		return;
 	}, function(err) {
@@ -47,7 +57,15 @@ var signin = function(req, res, next) {
 	var User = UserModule.init(db, app.settings.config.database.type);
 	User.signin(userData).then(function(result) {
 		if (result.code == UserModule.USER_OK.code) {
-			delete result.data.password;
+			userData = result.data;
+			delete userData.password;
+
+			// Create user token
+			var token = jwt.sign(userData, app.get('superSecret'), {
+				expiresIn: TOKEN_EXPRIED
+			});
+			req.session.token = token;
+
 			req.log.info({
 				catalog: 'User',
 				action: 'Signin',
@@ -55,6 +73,8 @@ var signin = function(req, res, next) {
 				result: result
 			});
 		} else {
+			req.session.token = null;
+			
 			req.log.info({
 				catalog: 'User',
 				action: 'Signin',

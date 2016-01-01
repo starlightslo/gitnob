@@ -17,6 +17,8 @@ var userRouter = require('./routes/user');
 // Git
 app.get('/api/git/repository', [gitRouter.list]);
 app.get('/api/git/repository/:repository', [gitRouter.get]);
+app.put('/api/git/repository/create', [dbRouter.init, userRouter.isLogin, gitRouter.create]);
+app.delete('/api/git/repository/destroy', [dbRouter.init, userRouter.isLogin, gitRouter.destroy]);
 
 // User
 app.post('/api/user/signup', [dbRouter.init, userRouter.signup]);

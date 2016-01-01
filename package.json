@@ -14,7 +14,8 @@
     "bunyan": "1.5.1",
     "uuid": "2.0.1",
     "bluebird": "3.1.1",
-    "nodegit": "0.6.3"
+    "nodegit": "0.6.3",
+    "rimraf": "2.5.0"
   },
   "devDependencies": {
     "mocha": "2.3.3"

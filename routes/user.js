@@ -4,6 +4,54 @@ var TOKEN_EXPRIED = 60 * 60 * 30;
 
 var UserModule = require('../modules/user');
 
+var isLogin = function(req, res, next) {
+	var token = req.session.token;
+	if (token) {
+		// verifies secret and checks exp
+		jwt.verify(token, app.get('superSecret'), function(err, userData) {
+			if (err) {
+				req.log.info({
+					catalog: 'User',
+					action: 'isLogin',
+					req: token,
+					result: err
+				});
+				res.status(403).send('Access Denied');
+				res.end();
+				return;
+			} else {
+				req.log.info({
+					catalog: 'User',
+					action: 'isLogin',
+					req: token,
+					result: {
+						username: userData.username
+					}
+				});
+
+				// Should denied the user type with < 0
+				if (userData.type < 0) {
+					res.status(403).send('Access Denied');
+					res.end();
+					return;
+				}
+				this.userData = userData;
+			}
+			next();
+		});
+	} else {
+		req.log.info({
+			catalog: 'User',
+			action: 'isLogin',
+			req: token,
+			result: 'No user token.'
+		});
+		res.status(403).send('Access Denied');
+		res.end();
+		return;
+	}
+}
+
 var signup = function(req, res, next) {
 	var username = req.body.username;
 	var password = req.body.password;
@@ -140,5 +188,6 @@ var logout = function(req, res, next) {
 module.exports = {
 	signup: signup,
 	signin: signin,
-	logout: logout
+	logout: logout,
+	isLogin: isLogin
 }

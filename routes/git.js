@@ -1,5 +1,104 @@
+var fs = require('fs');
 var path = require('path');
 var git = require('../modules/git');
+
+var create = function(req, res, next) {
+	var repositoryName = req.body.name;
+	if (!repositoryName) {
+		req.log.info({
+			catalog: 'Git',
+			action: 'Create',
+			req: repositoryName,
+			result: 'Missing repositoryName'
+		});
+		res.status(400).send('Bad Request');
+		return;
+	}
+
+	// Generating the repository path and check is the repository existing or not
+	var repositoryPath = path.join(app.settings.config.gitPath, repositoryName);
+	if (fs.existsSync(repositoryPath)){
+		req.log.error({
+			catalog: 'Git',
+			action: 'Create',
+			req: repositoryName,
+			error: 'There have a repository with same name.'
+		});
+		res.status(500).send('There have a repository with same name.');
+		return;
+	}
+
+	// Creates an empty Git repository
+	git.init(userData.username, repositoryPath, repositoryName, db, app.settings.config.database.type).then(function(result) {
+		req.log.info({
+			catalog: 'Git',
+			action: 'Create',
+			req: repositoryName,
+			result: result
+		});
+		res.json(result);
+		res.end();
+		return;
+	}, function(err) {
+		req.log.error({
+			catalog: 'Git',
+			action: 'Create',
+			req: repositoryName,
+			error: err
+		});
+		res.status(500).send('Server Error: ' + err);
+		return;
+	});
+};
+
+var destroy = function(req, res, next) {
+	var repositoryName = req.body.name;
+	if (!repositoryName) {
+		req.log.info({
+			catalog: 'Git',
+			action: 'Destory',
+			req: repositoryName,
+			result: 'Missing repositoryName'
+		});
+		res.status(400).send('Bad Request');
+		return;
+	}
+
+	// Generating the repository path and check is the repository existing or not
+	var repositoryPath = path.join(app.settings.config.gitPath, repositoryName);
+	if (!fs.existsSync(repositoryPath)){
+		req.log.error({
+			catalog: 'Git',
+			action: 'Destory',
+			req: repositoryName,
+			error: 'No repository.'
+		});
+		res.status(500).send('No repository.');
+		return;
+	}
+
+	// Creates an empty Git repository
+	git.destroy(userData.username, repositoryPath, repositoryName, db, app.settings.config.database.type).then(function(result) {
+		req.log.info({
+			catalog: 'Git',
+			action: 'Destory',
+			req: repositoryName,
+			result: result
+		});
+		res.json(result);
+		res.end();
+		return;
+	}, function(err) {
+		req.log.error({
+			catalog: 'Git',
+			action: 'Destory',
+			req: repositoryName,
+			error: err
+		});
+		res.status(500).send('Server Error: ' + err);
+		return;
+	});
+};
 
 var get = function(req, res, next) {
 	var repository = req.params.repository;
@@ -43,9 +142,17 @@ var get = function(req, res, next) {
 				});
 			}
 		}, function(err) {
-			req.log.error('Error: ' + err);
+			req.log.error({
+				catalog: 'Git',
+				action: 'Get',
+				req: {
+					repository: repository,
+					repositoryPath: repositoryPath
+				},
+				error: err
+			});
 			res.status(500).send('Server Error: ' + err);
-			next();
+			return;
 		})
 		.done(function() {
 			var resp = {
@@ -69,12 +176,20 @@ var get = function(req, res, next) {
 			});
 			res.json(resp);
 			res.end();
-			next();
+			return;
 		});
 	}, function(err) {
-		req.log.error('Error: ' + err);
+		req.log.error({
+			catalog: 'Git',
+			action: 'Get',
+			req: {
+				repository: repository,
+				repositoryPath: repositoryPath
+			},
+			error: err
+		});
 		res.status(500).send('Server Error: ' + err);
-		next();
+		return;
 	});
 };
 
@@ -93,15 +208,22 @@ var list = function(req, res, next) {
 		});
 		res.json(resp);
 		res.end();
-		next();
+		return;
 	}, function(err) {
-		req.log.error('Error: ' + err);
+		req.log.error({
+			catalog: 'Git',
+			action: 'List',
+			req: null,
+			error: err
+		});
 		res.status(500).send('Server Error: ' + err);
-		next();
+		return;
 	});
 }
 
 module.exports = {
+	create: create,
+	destroy: destroy,
 	list: list,
 	get: get
 }

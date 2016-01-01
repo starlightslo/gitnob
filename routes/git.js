@@ -101,8 +101,14 @@ var destroy = function(req, res, next) {
 	});
 };
 
-var get = function(req, res, next) {	
+var get = function(req, res, next) {
 	var repository = req.params.repository;
+	var ref = req.params.ref;
+	var head = req.params.head;
+	var branch = req.params.branch;
+	if (ref && head && branch) {
+		branch = ref + '/' + head + '/' + branch;
+	}
 	var repositoryPath = path.join(app.settings.config.gitPath, repository);
 
 	// Check permission
@@ -113,6 +119,7 @@ var get = function(req, res, next) {
 			req: {
 				userData: userData,
 				repository: repository,
+				branch: branch,
 				repositoryPath: repositoryPath
 			},
 			result: 'No Permission.'
@@ -138,6 +145,7 @@ var get = function(req, res, next) {
 			req: {
 				userData: userData,
 				repository: repository,
+				branch: branch,
 				repositoryPath: repositoryPath
 			},
 			error: err
@@ -164,7 +172,13 @@ var get = function(req, res, next) {
 	.then(function(reference) {
 		if (!reference) return;
 		defaultBranch = reference.name();
-		return GitModule.listCommit(this.repo, defaultBranch);
+		if (branch) {
+			// Use branch of user's selected
+			return GitModule.listCommit(this.repo, branch);
+		} else {
+			// Use default branch
+			return GitModule.listCommit(this.repo, defaultBranch);
+		}
 	})
 
 	// Result of commits
@@ -208,6 +222,7 @@ var get = function(req, res, next) {
 			req: {
 				userData: userData,
 				repository: repository,
+				branch: branch,
 				repositoryPath: repositoryPath
 			},
 			result: resp

@@ -1,6 +1,7 @@
 var fs = require('fs');
 var path = require('path');
-var git = require('../modules/git');
+var GitModule = require('../modules/git');
+var UserModule = require('../modules/user');
 
 var create = function(req, res, next) {
 	var repositoryName = req.body.name;
@@ -29,7 +30,7 @@ var create = function(req, res, next) {
 	}
 
 	// Creates an empty Git repository
-	git.init(userData.username, repositoryPath, repositoryName, db, app.settings.config.database.type).then(function(result) {
+	GitModule.init(userData.username, repositoryPath, repositoryName, db, app.settings.config.database.type).then(function(result) {
 		req.log.info({
 			catalog: 'Git',
 			action: 'Create',
@@ -78,7 +79,7 @@ var destroy = function(req, res, next) {
 	}
 
 	// Creates an empty Git repository
-	git.destroy(userData.username, repositoryPath, repositoryName, db, app.settings.config.database.type).then(function(result) {
+	GitModule.destroy(userData.username, repositoryPath, repositoryName, db, app.settings.config.database.type).then(function(result) {
 		req.log.info({
 			catalog: 'Git',
 			action: 'Destory',
@@ -100,89 +101,42 @@ var destroy = function(req, res, next) {
 	});
 };
 
-var get = function(req, res, next) {
+var get = function(req, res, next) {	
 	var repository = req.params.repository;
 	var repositoryPath = path.join(app.settings.config.gitPath, repository);
-	git.open(repositoryPath).then(function(repository) {
-		var featureSwitch = {
-			branch: false,
-			tag: false
-		}
-		var branchList = [];
-		var tagList = [];
-		var defaultBranch = '';
-		var commitList = [];
-		// Get branch
-		git.listBranch(repository).then(function(branchArray) {
-			branchList = branchArray;
-			return git.listTag(repository);
-		})
-		// Get Tag
-		.then(function(tagArray) {
-			tagList = tagArray;
-			return repository.getCurrentBranch();
-		})
-		// Get Default branch
-		.then(function(reference) {
-			defaultBranch = reference.name();
-			return git.listCommit(repository, defaultBranch);
-		})
-		// Get commit
-		.then(function(commits) {
-			for (var i in commits) {
-				commitList.push({
-					id: commits[i].id().tostrS(),
-					author: commits[i].author().toString(),
-					committer: commits[i].committer().toString(),
-					date: commits[i].date(),
-					message: commits[i].message(),
-					messageRaw: commits[i].messageRaw(),
-					messageEncoding: commits[i].messageEncoding(),
-					summary: commits[i].summary()
-				});
-			}
-		}, function(err) {
-			req.log.error({
-				catalog: 'Git',
-				action: 'Get',
-				req: {
-					repository: repository,
-					repositoryPath: repositoryPath
-				},
-				error: err
-			});
-			res.status(500).send('Server Error: ' + err);
-			return;
-		})
-		.done(function() {
-			var resp = {
-				code: 200,
-				result: 'OK',
-				data: {
-					defaultBranch: defaultBranch,
-					branchList: branchList,
-					tagList: tagList,
-					commitList: commitList
-				}
-			}
-			req.log.info({
-				catalog: 'Git',
-				action: 'Get',
-				req: {
-					repository: repository,
-					repositoryPath: repositoryPath
-				},
-				result: resp
-			});
-			res.json(resp);
-			res.end();
-			return;
-		});
-	}, function(err) {
-		req.log.error({
+
+	// Check permission
+	if (userData.repositoryList.indexOf(repository) < 0) {
+		req.log.info({
 			catalog: 'Git',
 			action: 'Get',
 			req: {
+				userData: userData,
+				repository: repository,
+				repositoryPath: repositoryPath
+			},
+			result: 'No Permission.'
+		});
+		res.status(403).send('No Permission');
+		return;
+	}
+
+	var repo = null;
+	var branchList = [];
+	var tagList = [];
+	var defaultBranch = '';
+
+	// List all repositores
+	GitModule.open(repositoryPath).then(function(repository) {
+		this.repo = repository;
+		// Get all branch
+		return GitModule.listBranch(repository);
+	}, function(err) {
+		req.log.error({
+			catalog: 'Git',
+			action: 'Get - Repository',
+			req: {
+				userData: userData,
 				repository: repository,
 				repositoryPath: repositoryPath
 			},
@@ -190,35 +144,95 @@ var get = function(req, res, next) {
 		});
 		res.status(500).send('Server Error: ' + err);
 		return;
-	});
-};
+	})
 
-var list = function(req, res, next) {
-	git.listRepo(app.settings.config.gitPath).then(function(result) {
+	// Result of branch
+	.then(function(branchArray) {
+		if (!branchArray) return;
+		branchList = branchArray;
+		return GitModule.listTag(this.repo);
+	})
+
+	// Result of tag
+	.then(function(tagArray) {
+		if (!tagArray) return;
+		tagList = tagArray;
+		return this.repo.getCurrentBranch();
+	})
+
+	// Result of current branch
+	.then(function(reference) {
+		if (!reference) return;
+		defaultBranch = reference.name();
+		return GitModule.listCommit(this.repo, defaultBranch);
+	})
+
+	// Result of commits
+	.then(function(commits) {
+		if (!commits) return;
+		var commitList = [];
+		for (var i in commits) {
+			commitList.push({
+				id: commits[i].id().tostrS(),
+				author: commits[i].author().toString(),
+				committer: commits[i].committer().toString(),
+				date: commits[i].date(),
+				message: commits[i].message(),
+				messageRaw: commits[i].messageRaw(),
+				messageEncoding: commits[i].messageEncoding(),
+				summary: commits[i].summary()
+			});
+		}
+		return commitList;
+	}, function(err) {
+		return [];
+	})
+
+	// End of process
+	.then(function(commitList) {
+		if (!commitList) return;
+		// Set response data to client
 		var resp = {
 			code: 200,
 			result: 'OK',
-			data: result
+			data: {
+				defaultBranch: defaultBranch,
+				branchList: branchList,
+				tagList: tagList,
+				commitList: commitList
+			}
 		}
 		req.log.info({
 			catalog: 'Git',
-			action: 'List',
-			req: null,
+			action: 'Get',
+			req: {
+				userData: userData,
+				repository: repository,
+				repositoryPath: repositoryPath
+			},
 			result: resp
 		});
 		res.json(resp);
 		res.end();
 		return;
-	}, function(err) {
-		req.log.error({
-			catalog: 'Git',
-			action: 'List',
-			req: null,
-			error: err
-		});
-		res.status(500).send('Server Error: ' + err);
-		return;
 	});
+};
+
+var list = function(req, res, next) {
+	var resp = {
+		code: 200,
+		result: 'OK',
+		data: userData.repositoryList
+	}
+	req.log.info({
+		catalog: 'Git',
+		action: 'List',
+		req: userData,
+		result: resp
+	});
+	res.json(resp);
+	res.end();
+	return;
 }
 
 module.exports = {

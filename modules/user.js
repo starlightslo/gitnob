@@ -81,6 +81,25 @@ var User = function(db, dbType) {
 				});
 			}
 			return deferred.promise;
+		},
+		list: function() {
+			var deferred = Promise.defer();
+			if (dbType == 'txt') {
+				db.read().then(function(data) {
+					var userList = data.userList;
+					for (var i in userList) {
+						delete userList[i].password;
+					}
+					return deferred.resolve({
+						code: USER_OK.code,
+						result: USER_OK.result,
+						data: data.userList
+					});
+				}, function(err) {
+					return deferred.reject(err);
+				});
+			}
+			return deferred.promise;
 		}
 	}
 }

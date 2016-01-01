@@ -13,6 +13,7 @@ if (config.database.type == 'txt') {
 var dbRouter = require('./routes/db');
 var gitRouter = require('./routes/git');
 var userRouter = require('./routes/user');
+var adminRouter = require('./routes/admin');
 
 // Git
 app.get('/api/git/repository', [gitRouter.list]);
@@ -24,3 +25,7 @@ app.delete('/api/git/repository/destroy', [dbRouter.init, userRouter.isLogin, gi
 app.post('/api/user/signup', [dbRouter.init, userRouter.signup]);
 app.post('/api/user/signin', [dbRouter.init, userRouter.signin]);
 app.post('/api/user/logout', [userRouter.logout]);
+
+// Admin
+app.get('/api/admin/git/repository', [dbRouter.init, userRouter.isLogin, adminRouter.listRepository]);
+app.get('/api/admin/user', [dbRouter.init, userRouter.isLogin, adminRouter.listUser]);

@@ -2,7 +2,10 @@ var crypto = require('crypto');
 var Promise = require('bluebird');
 
 // Response status
+var USER_OK = {code: 200, result: 'OK'};
 var USER_EXISTING = {code: 1000, result: 'User already existing.'};
+var USER_NOT_FOUND = {code: 1001, result: 'User not found.'};
+var USER_WITH_INVALIDE_PASSWORD = {code: 1002, result: 'User with invalide password.'};
 
 
 var User = function(db, dbType) {
@@ -12,10 +15,7 @@ var User = function(db, dbType) {
 			this.isUserExisting(userData.username).then(function(result) {
 				if (result.existing) {
 					// Username already existing
-					return deferred.resolve({
-						code: USER_EXISTING.code,
-						result: USER_EXISTING.result
-					});
+					return deferred.resolve(USER_EXISTING);
 				} else {
 					if (dbType == 'txt') {
 						// Insert new user
@@ -34,10 +34,31 @@ var User = function(db, dbType) {
 				/* =======================
 				            TODO
 				   ======================= */
-				return deferred.resolve({
-					code: 200,
-					result: 'OK'
-				});
+				return deferred.resolve(USER_OK);
+			}, function(err) {
+				return deferred.reject(err);
+			});
+			return deferred.promise;
+		},
+		signin: function(userData) {
+			var deferred = Promise.defer();
+			this.isUserExisting(userData.username).then(function(result) {
+				if (result.existing) {
+					var user = result.data;
+					// Check password
+					if (userData.password === user.password) {
+						return deferred.resolve({
+							code: USER_OK.code,
+							result: USER_OK.result,
+							data: user
+						});
+					} else {
+						return deferred.resolve(USER_WITH_INVALIDE_PASSWORD);
+					}
+				} else {
+					// User not found
+					return deferred.resolve(USER_NOT_FOUND);
+				}
 			}, function(err) {
 				return deferred.reject(err);
 			});
@@ -50,13 +71,13 @@ var User = function(db, dbType) {
 					var userList = data.userList;
 					for (var i in userList) {
 						if (userList[i].username == username) {
-							deferred.resolve({existing: true});
+							deferred.resolve({existing: true, data: userList[i]});
 							break;
 						}
 					}
-					deferred.resolve({existing: false, data: data});
+					return deferred.resolve({existing: false, data: data});
 				}, function(err) {
-					deferred.reject(err);
+					return deferred.reject(err);
 				});
 			}
 			return deferred.promise;
@@ -64,6 +85,15 @@ var User = function(db, dbType) {
 	}
 }
 
-module.exports.init = function(db, dbType) {
+var init = function(db, dbType) {
 	return new User(db, dbType);
+}
+
+
+module.exports = {
+	init: init,
+	USER_OK: USER_OK,
+	USER_EXISTING: USER_EXISTING,
+	USER_NOT_FOUND: USER_NOT_FOUND,
+	USER_WITH_INVALIDE_PASSWORD: USER_WITH_INVALIDE_PASSWORD
 }

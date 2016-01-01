@@ -1,8 +1,15 @@
+var path = require('path');
+
 module.exports = {
-	'port': 8888,
-	'secret': '1234567890abcdefghijklmnopqrstuvwxyz',
-	'gitPath': '/Users/Tony/Documents/tony/',
-	'logConfiguration': {
+	port: 8888,
+	secret: '1234567890abcdefghijklmnopqrstuvwxyz',
+	gitPath: '/Users/Tony/Documents/Dropbox/',
+	database: {
+		type: 'txt',
+		path: path.join(__dirname, 'db'),
+		name: 'db.txt'
+	},
+	logConfiguration: {
 		name: 'GitNob',
 		streams: [{
 			level: 'trace',

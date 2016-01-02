@@ -209,6 +209,29 @@ var deleteCollaborator = function(repository, collaboratorName) {
 	return deferred.promise;
 }
 
+var listCollaborator = function(repository) {
+	var deferred = Promise.defer();
+	// Read user data
+	db.read().then(function(data) {
+		var userList = data.userList;
+		var collaboratorList = [];
+		for (var i in userList) {
+			var index = userList[i].collaborateRepositoryList.indexOf(repository);
+			if (index > -1) {
+				collaboratorList.push(userList[i].username);
+			}
+		}
+		return deferred.resolve({
+			code: GIT_OK.code,
+			result: GIT_OK.result,
+			data: collaboratorList
+		});
+	}, function(err) {
+		return deferred.reject(err);
+	})
+	return deferred.promise;
+}
+
 module.exports = {
 	init: init,
 	destroy: destroy,
@@ -218,5 +241,6 @@ module.exports = {
 	listCommit: listCommit,
 	open: open,
 	addCollaborator: addCollaborator,
-	deleteCollaborator: deleteCollaborator
+	deleteCollaborator: deleteCollaborator,
+	listCollaborator: listCollaborator
 }

@@ -17,6 +17,7 @@ var userRouter = require('./routes/user');
 // Git
 app.get('/api/git/repository', [dbRouter.init, userRouter.isLogin, gitRouter.list]);
 app.get('/api/git/repository/:repository', [dbRouter.init, userRouter.isLogin, gitRouter.get]);
+app.get('/api/git/repository/:repository/collaborator', [dbRouter.init, userRouter.isLogin, gitRouter.listCollaborator]);
 app.put('/api/git/repository/:repository/collaborator', [dbRouter.init, userRouter.isLogin, gitRouter.addCollaborator]);
 app.delete('/api/git/repository/:repository/collaborator', [dbRouter.init, userRouter.isLogin, gitRouter.deleteCollaborator]);
 app.get('/api/git/repository/:repository/:ref/:head/:branch', [dbRouter.init, userRouter.isLogin, gitRouter.get]);

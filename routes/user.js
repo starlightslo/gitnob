@@ -20,24 +20,37 @@ var isLogin = function(req, res, next) {
 				res.end();
 				return;
 			} else {
-				req.log.info({
-					catalog: 'User',
-					action: 'isLogin',
-					req: token,
-					result: {
-						username: userData.username
-					}
-				});
+				// Update userData from database
+				var User = UserModule.init(db, app.settings.config.database.type);
+				User.isUserExisting(userData.username).then(function(result) {
+				this.userData = result.data;
+					req.log.info({
+						catalog: 'User',
+						action: 'isLogin',
+						req: token,
+						result: this.userData
+					});
 
-				// Should denied the user type with < 0
-				if (userData.type < 0) {
-					res.status(403).send('Access Denied');
+					// Should denied the user type with < 0
+					if (this.userData.type < 0) {
+						res.status(403).send('Access Denied');
+						res.end();
+						return;
+					}
+					
+					next();
+				}, function(err) {
+					req.log.info({
+						catalog: 'User',
+						action: 'isLogin',
+						req: token,
+						result: UserModule.USER_NOT_FOUND
+					});
+					res.status(403).send(UserModule.USER_NOT_FOUND.result);
 					res.end();
 					return;
-				}
-				this.userData = userData;
+				});
 			}
-			next();
 		});
 	} else {
 		req.log.info({

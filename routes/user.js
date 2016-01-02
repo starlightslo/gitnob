@@ -1,4 +1,4 @@
-var crypto = require('crypto');
+var bcrypt = require('bcryptjs');
 var jwt = require('jsonwebtoken');
 var TOKEN_EXPRIED = 60 * 60 * 30;
 
@@ -76,7 +76,7 @@ var signup = function(req, res, next) {
 
 	var userData = {
 		username: username,
-		password: crypto.createHash('md5').update(password).digest("hex"),
+		password: bcrypt.hashSync(password),
 		sshKeyList: [],
 		repositoryList: [],
 		collaborateRepositoryList: [],
@@ -124,7 +124,7 @@ var signin = function(req, res, next) {
 
 	var userData = {
 		username: username,
-		password: crypto.createHash('md5').update(password).digest("hex")
+		password: password
 	}
 	var User = UserModule.init(db, app.settings.config.database.type);
 	User.signin(userData).then(function(result) {

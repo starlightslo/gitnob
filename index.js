@@ -27,3 +27,5 @@ app.delete('/api/git/repository/destroy', [dbRouter.init, userRouter.isLogin, gi
 app.post('/api/user/signup', [dbRouter.init, userRouter.signup]);
 app.post('/api/user/signin', [dbRouter.init, userRouter.signin]);
 app.post('/api/user/logout', [userRouter.logout]);
+app.put('/api/user/ssh_key', [dbRouter.init, userRouter.isLogin, userRouter.addSshKey])
+app.delete('/api/user/ssh_key', [dbRouter.init, userRouter.isLogin, userRouter.deleteSshKey])

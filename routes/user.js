@@ -56,6 +56,11 @@ var signup = function(req, res, next) {
 	var username = req.body.username;
 	var password = req.body.password;
 
+	// Check value of input
+	/* =======================
+	          TODO
+	======================= */
+
 	var userData = {
 		username: username,
 		password: crypto.createHash('md5').update(password).digest("hex"),
@@ -98,6 +103,11 @@ var signup = function(req, res, next) {
 var signin = function(req, res, next) {
 	var username = req.body.username;
 	var password = req.body.password;
+
+	// Check value of input
+	/* =======================
+	          TODO
+	======================= */
 
 	var userData = {
 		username: username,
@@ -186,9 +196,91 @@ var logout = function(req, res, next) {
 	}
 }
 
+var addSshKey = function(req, res, next) {
+	var sshKey = req.body.sshKey;
+	var keyName = req.body.keyName;
+
+	// Check value of input
+	/* =======================
+	          TODO
+	======================= */
+
+	var User = UserModule.init(db, app.settings.config.database.type);
+	User.addSshKey(userData.username, sshKey, keyName).then(function(result) {
+		req.log.info({
+			catalog: 'User',
+			action: 'Add SSH Key',
+			req: {
+				userData: userData,
+				sshKey: sshKey,
+				keyName: keyName
+			},
+			result: result
+		});
+		res.json(result);
+		res.end();
+		return;
+	}, function(err) {
+		req.log.error({
+			catalog: 'User',
+			action: 'Add SSH Key',
+			req: {
+				userData: userData,
+				sshKey: sshKey,
+				keyName: keyName
+			},
+			error: err
+		});
+		res.status(500).send('Server Error: ' + err);
+		return;
+	});
+}
+
+var deleteSshKey = function(req, res, next) {
+	var sshKey = req.body.sshKey;
+	var keyName = req.body.keyName;
+
+	// Check value of input
+	/* =======================
+	          TODO
+	======================= */
+
+	var User = UserModule.init(db, app.settings.config.database.type);
+	User.deleteSshKey(userData.username, sshKey, keyName).then(function(result) {
+		req.log.info({
+			catalog: 'User',
+			action: 'Delete SSH Key',
+			req: {
+				userData: userData,
+				sshKey: sshKey,
+				keyName: keyName
+			},
+			result: result
+		});
+		res.json(result);
+		res.end();
+		return;
+	}, function(err) {
+		req.log.error({
+			catalog: 'User',
+			action: 'Delete SSH Key',
+			req: {
+				userData: userData,
+				sshKey: sshKey,
+				keyName: keyName
+			},
+			error: err
+		});
+		res.status(500).send('Server Error: ' + err);
+		return;
+	});
+}
+
 module.exports = {
 	signup: signup,
 	signin: signin,
 	logout: logout,
-	isLogin: isLogin
+	isLogin: isLogin,
+	addSshKey: addSshKey,
+	deleteSshKey: deleteSshKey
 }

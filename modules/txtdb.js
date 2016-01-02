@@ -52,6 +52,7 @@ module.exports.init = function(dbPath, dbName) {
 			username: 'admin',
 			password: crypto.createHash('md5').update('admin').digest("hex"),
 			repositoryList: [],
+			collaborateRepositoryList: [],
 			sshKeyList: [],
 			type: 9
 		}],

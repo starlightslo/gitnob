@@ -289,9 +289,121 @@ var list = function(req, res, next) {
 	return;
 }
 
+var addCollaborator = function(req, res, next) {
+	var collaboratorName = req.body.username;
+	var repository = req.params.repository;
+	var repositoryPath = path.join(app.settings.config.gitPath, repository);
+
+	// Check permission
+	if (userData.repositoryList.indexOf(repository) < 0) {
+		req.log.info({
+			catalog: 'Git',
+			action: 'Add Collaborator',
+			req: {
+				userData: userData,
+				collaboratorName: collaboratorName,
+				repository: repository,
+				repositoryPath: repositoryPath
+			},
+			result: 'No Permission.'
+		});
+		res.status(403).send('No Permission');
+		return;
+	}
+
+	// Check collaborator name
+	GitModule.addCollaborator(repository, collaboratorName).then(function(result) {
+		req.log.info({
+			catalog: 'Git',
+			action: 'Add Collaborator',
+			req: {
+				userData: userData,
+				collaboratorName: collaboratorName,
+				repository: repository,
+				repositoryPath: repositoryPath
+			},
+			result: result
+		});
+		res.json(result);
+		res.end();
+		return;
+	}, function(err) {
+		req.log.error({
+			catalog: 'Git',
+			action: 'Add Collaborator',
+			req: {
+				userData: userData,
+				collaboratorName: collaboratorName,
+				repository: repository,
+				repositoryPath: repositoryPath
+			},
+			error: err
+		});
+		res.status(500).send('Server Error: ' + err);
+		return;
+	});
+};
+
+var deleteCollaborator = function(req, res, next) {
+	var collaboratorName = req.body.username;
+	var repository = req.params.repository;
+	var repositoryPath = path.join(app.settings.config.gitPath, repository);
+
+	// Check permission
+	if (userData.repositoryList.indexOf(repository) < 0) {
+		req.log.info({
+			catalog: 'Git',
+			action: 'Delete Collaborator',
+			req: {
+				userData: userData,
+				collaboratorName: collaboratorName,
+				repository: repository,
+				repositoryPath: repositoryPath
+			},
+			result: 'No Permission.'
+		});
+		res.status(403).send('No Permission');
+		return;
+	}
+
+	// Check collaborator name
+	GitModule.deleteCollaborator(repository, collaboratorName).then(function(result) {
+		req.log.info({
+			catalog: 'Git',
+			action: 'Delete Collaborator',
+			req: {
+				userData: userData,
+				collaboratorName: collaboratorName,
+				repository: repository,
+				repositoryPath: repositoryPath
+			},
+			result: result
+		});
+		res.json(result);
+		res.end();
+		return;
+	}, function(err) {
+		req.log.error({
+			catalog: 'Git',
+			action: 'Delete Collaborator',
+			req: {
+				userData: userData,
+				collaboratorName: collaboratorName,
+				repository: repository,
+				repositoryPath: repositoryPath
+			},
+			error: err
+		});
+		res.status(500).send('Server Error: ' + err);
+		return;
+	});
+};
+
 module.exports = {
 	create: create,
 	destroy: destroy,
 	list: list,
-	get: get
+	get: get,
+	addCollaborator: addCollaborator,
+	deleteCollaborator: deleteCollaborator
 }

@@ -61,6 +61,7 @@ var signup = function(req, res, next) {
 		password: crypto.createHash('md5').update(password).digest("hex"),
 		sshKeyList: [],
 		repositoryList: [],
+		collaborateRepositoryList: [],
 		type: 0
 	}
 	var User = UserModule.init(db, app.settings.config.database.type);

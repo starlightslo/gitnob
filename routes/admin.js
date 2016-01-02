@@ -1,4 +1,4 @@
-var crypto = require('crypto');
+var bcrypt = require('bcryptjs');
 var GitModule = require('../modules/git');
 var UserModule = require('../modules/user');
 
@@ -62,7 +62,7 @@ var addUser = function(req, res, next) {
 
 	var userData = {
 		username: username,
-		password: crypto.createHash('md5').update(password).digest("hex"),
+		password: bcrypt.hashSync(password),
 		sshKeyList: [],
 		repositoryList: [],
 		collaborateRepositoryList: [],

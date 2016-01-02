@@ -6,18 +6,6 @@ var NORMAL_PERMISSION = 0;
 var ADMIN_PERMISSION = 9;
 
 var listRepository = function(req, res, next) {
-	// Check permission
-	if (userData.type < ADMIN_PERMISSION) {
-		req.log.info({
-			catalog: 'Admin',
-			action: 'List Repository',
-			req: userData,
-			result: 'No Permission.'
-		});
-		res.status(403).send('No Permission');
-		return;
-	}
-
 	// List all repositories
 	GitModule.listRepo(app.settings.config.gitPath).then(function(result) {
 		var resp = {
@@ -47,18 +35,6 @@ var listRepository = function(req, res, next) {
 };
 
 var listUser = function(req, res, next) {
-	// Check permission
-	if (userData.type < ADMIN_PERMISSION) {
-		req.log.info({
-			catalog: 'Admin',
-			action: 'List User',
-			req: userData,
-			result: 'No Permission.'
-		});
-		res.status(403).send('No Permission');
-		return;
-	}
-
 	// List all repositories
 	var User = UserModule.init(db, app.settings.config.database.type);
 	User.list().then(function(result) {
@@ -83,8 +59,24 @@ var listUser = function(req, res, next) {
 	});
 };
 
+var checkAdminPermission = function(req, res, next) {
+	// Check permission
+	if (userData.type < ADMIN_PERMISSION) {
+		req.log.info({
+			catalog: 'Admin',
+			action: 'Check Admin Permission',
+			req: userData,
+			result: 'No Permission.'
+		});
+		res.status(403).send('No Permission');
+		return;
+	}
+	next();
+}
+
 
 module.exports = {
+	checkAdminPermission: checkAdminPermission,
 	listRepository: listRepository,
 	listUser: listUser
 }

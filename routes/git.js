@@ -399,11 +399,63 @@ var deleteCollaborator = function(req, res, next) {
 	});
 };
 
+var listCollaborator = function(req, res, next) {
+	var repository = req.params.repository;
+	var repositoryPath = path.join(app.settings.config.gitPath, repository);
+
+	// Check permission
+	if (userData.repositoryList.indexOf(repository) < 0) {
+		req.log.info({
+			catalog: 'Git',
+			action: 'List Collaborator',
+			req: {
+				userData: userData,
+				repository: repository,
+				repositoryPath: repositoryPath
+			},
+			result: 'No Permission.'
+		});
+		res.status(403).send('No Permission');
+		return;
+	}
+
+	// Check collaborator name
+	GitModule.listCollaborator(repository).then(function(result) {
+		req.log.info({
+			catalog: 'Git',
+			action: 'List Collaborator',
+			req: {
+				userData: userData,
+				repository: repository,
+				repositoryPath: repositoryPath
+			},
+			result: result
+		});
+		res.json(result);
+		res.end();
+		return;
+	}, function(err) {
+		req.log.error({
+			catalog: 'Git',
+			action: 'List Collaborator',
+			req: {
+				userData: userData,
+				repository: repository,
+				repositoryPath: repositoryPath
+			},
+			error: err
+		});
+		res.status(500).send('Server Error: ' + err);
+		return;
+	});
+};
+
 module.exports = {
 	create: create,
 	destroy: destroy,
 	list: list,
 	get: get,
 	addCollaborator: addCollaborator,
-	deleteCollaborator: deleteCollaborator
+	deleteCollaborator: deleteCollaborator,
+	listCollaborator: listCollaborator
 }

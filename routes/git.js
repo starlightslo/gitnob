@@ -1,6 +1,7 @@
 var fs = require('fs');
 var path = require('path');
-var git = require('../modules/git');
+var GitModule = require('../modules/git');
+var UserModule = require('../modules/user');
 
 var create = function(req, res, next) {
 	var repositoryName = req.body.name;
@@ -8,7 +9,10 @@ var create = function(req, res, next) {
 		req.log.info({
 			catalog: 'Git',
 			action: 'Create',
-			req: repositoryName,
+			req: {
+				userData: userData,
+				repositoryName: repositoryName
+			},
 			result: 'Missing repositoryName'
 		});
 		res.status(400).send('Bad Request');
@@ -21,7 +25,10 @@ var create = function(req, res, next) {
 		req.log.error({
 			catalog: 'Git',
 			action: 'Create',
-			req: repositoryName,
+			req: {
+				userData: userData,
+				repositoryName: repositoryName
+			},
 			error: 'There have a repository with same name.'
 		});
 		res.status(500).send('There have a repository with same name.');
@@ -29,11 +36,14 @@ var create = function(req, res, next) {
 	}
 
 	// Creates an empty Git repository
-	git.init(userData.username, repositoryPath, repositoryName, db, app.settings.config.database.type).then(function(result) {
+	GitModule.init(userData.username, repositoryPath, repositoryName, db, app.settings.config.database.type).then(function(result) {
 		req.log.info({
 			catalog: 'Git',
 			action: 'Create',
-			req: repositoryName,
+			req: {
+				userData: userData,
+				repositoryName: repositoryName
+			},
 			result: result
 		});
 		res.json(result);
@@ -43,7 +53,10 @@ var create = function(req, res, next) {
 		req.log.error({
 			catalog: 'Git',
 			action: 'Create',
-			req: repositoryName,
+			req: {
+				userData: userData,
+				repositoryName: repositoryName
+			},
 			error: err
 		});
 		res.status(500).send('Server Error: ' + err);
@@ -57,7 +70,10 @@ var destroy = function(req, res, next) {
 		req.log.info({
 			catalog: 'Git',
 			action: 'Destory',
-			req: repositoryName,
+			req: {
+				userData: userData,
+				repositoryName: repositoryName
+			},
 			result: 'Missing repositoryName'
 		});
 		res.status(400).send('Bad Request');
@@ -70,19 +86,40 @@ var destroy = function(req, res, next) {
 		req.log.error({
 			catalog: 'Git',
 			action: 'Destory',
-			req: repositoryName,
+			req: {
+				userData: userData,
+				repositoryName: repositoryName
+			},
 			error: 'No repository.'
 		});
 		res.status(500).send('No repository.');
 		return;
 	}
 
-	// Creates an empty Git repository
-	git.destroy(userData.username, repositoryPath, repositoryName, db, app.settings.config.database.type).then(function(result) {
+	// Check permission
+	if (userData.repositoryList.indexOf(repository) < 0) {
 		req.log.info({
 			catalog: 'Git',
 			action: 'Destory',
-			req: repositoryName,
+			req: {
+				userData: userData,
+				repositoryName: repositoryName
+			},
+			result: 'No Permission.'
+		});
+		res.status(403).send('No Permission');
+		return;
+	}
+
+	// Creates an empty Git repository
+	GitModule.destroy(userData.username, repositoryPath, repositoryName, db, app.settings.config.database.type).then(function(result) {
+		req.log.info({
+			catalog: 'Git',
+			action: 'Destory',
+			req: {
+				userData: userData,
+				repositoryName: repositoryName
+			},
 			result: result
 		});
 		res.json(result);
@@ -92,7 +129,10 @@ var destroy = function(req, res, next) {
 		req.log.error({
 			catalog: 'Git',
 			action: 'Destory',
-			req: repositoryName,
+			req: {
+				userData: userData,
+				repositoryName: repositoryName
+			},
 			error: err
 		});
 		res.status(500).send('Server Error: ' + err);
@@ -102,87 +142,198 @@ var destroy = function(req, res, next) {
 
 var get = function(req, res, next) {
 	var repository = req.params.repository;
+	var ref = req.params.ref;
+	var head = req.params.head;
+	var branch = req.params.branch;
+	if (ref && head && branch) {
+		branch = ref + '/' + head + '/' + branch;
+	}
 	var repositoryPath = path.join(app.settings.config.gitPath, repository);
-	git.open(repositoryPath).then(function(repository) {
-		var featureSwitch = {
-			branch: false,
-			tag: false
-		}
-		var branchList = [];
-		var tagList = [];
-		var defaultBranch = '';
-		var commitList = [];
-		// Get branch
-		git.listBranch(repository).then(function(branchArray) {
-			branchList = branchArray;
-			return git.listTag(repository);
-		})
-		// Get Tag
-		.then(function(tagArray) {
-			tagList = tagArray;
-			return repository.getCurrentBranch();
-		})
-		// Get Default branch
-		.then(function(reference) {
-			defaultBranch = reference.name();
-			return git.listCommit(repository, defaultBranch);
-		})
-		// Get commit
-		.then(function(commits) {
-			for (var i in commits) {
-				commitList.push({
-					id: commits[i].id().tostrS(),
-					author: commits[i].author().toString(),
-					committer: commits[i].committer().toString(),
-					date: commits[i].date(),
-					message: commits[i].message(),
-					messageRaw: commits[i].messageRaw(),
-					messageEncoding: commits[i].messageEncoding(),
-					summary: commits[i].summary()
-				});
-			}
-		}, function(err) {
-			req.log.error({
-				catalog: 'Git',
-				action: 'Get',
-				req: {
-					repository: repository,
-					repositoryPath: repositoryPath
-				},
-				error: err
-			});
-			res.status(500).send('Server Error: ' + err);
-			return;
-		})
-		.done(function() {
-			var resp = {
-				code: 200,
-				result: 'OK',
-				data: {
-					defaultBranch: defaultBranch,
-					branchList: branchList,
-					tagList: tagList,
-					commitList: commitList
-				}
-			}
-			req.log.info({
-				catalog: 'Git',
-				action: 'Get',
-				req: {
-					repository: repository,
-					repositoryPath: repositoryPath
-				},
-				result: resp
-			});
-			res.json(resp);
-			res.end();
-			return;
-		});
-	}, function(err) {
-		req.log.error({
+
+	// Check permission
+	if (userData.repositoryList.indexOf(repository) < 0) {
+		req.log.info({
 			catalog: 'Git',
 			action: 'Get',
 			req: {
+				userData: userData,
+				repository: repository,
+				branch: branch,
+				repositoryPath: repositoryPath
+			},
+			result: 'No Permission.'
+		});
+		res.status(403).send('No Permission');
+		return;
+	}
+
+	var repo = null;
+	var branchList = [];
+	var tagList = [];
+	var defaultBranch = '';
+
+	// List all repositores
+	GitModule.open(repositoryPath).then(function(repository) {
+		this.repo = repository;
+		// Get all branch
+		return GitModule.listBranch(repository);
+	}, function(err) {
+		req.log.error({
+			catalog: 'Git',
+			action: 'Get - Repository',
+			req: {
+				userData: userData,
+				repository: repository,
+				branch: branch,
+				repositoryPath: repositoryPath
+			},
+			error: err
+		});
+		res.status(500).send('Server Error: ' + err);
+		return;
+	})
+
+	// Result of branch
+	.then(function(branchArray) {
+		if (!branchArray) return;
+		branchList = branchArray;
+		return GitModule.listTag(this.repo);
+	})
+
+	// Result of tag
+	.then(function(tagArray) {
+		if (!tagArray) return;
+		tagList = tagArray;
+		return this.repo.getCurrentBranch();
+	})
+
+	// Result of current branch
+	.then(function(reference) {
+		if (!reference) return;
+		defaultBranch = reference.name();
+		if (branch) {
+			// Use branch of user's selected
+			return GitModule.listCommit(this.repo, branch);
+		} else {
+			// Use default branch
+			return GitModule.listCommit(this.repo, defaultBranch);
+		}
+	})
+
+	// Result of commits
+	.then(function(commits) {
+		if (!commits) return;
+		var commitList = [];
+		for (var i in commits) {
+			commitList.push({
+				id: commits[i].id().tostrS(),
+				author: commits[i].author().toString(),
+				committer: commits[i].committer().toString(),
+				date: commits[i].date(),
+				message: commits[i].message(),
+				messageRaw: commits[i].messageRaw(),
+				messageEncoding: commits[i].messageEncoding(),
+				summary: commits[i].summary()
+			});
+		}
+		return commitList;
+	}, function(err) {
+		return [];
+	})
+
+	// End of process
+	.then(function(commitList) {
+		if (!commitList) return;
+		// Set response data to client
+		var resp = {
+			code: 200,
+			result: 'OK',
+			data: {
+				defaultBranch: defaultBranch,
+				branchList: branchList,
+				tagList: tagList,
+				commitList: commitList
+			}
+		}
+		req.log.info({
+			catalog: 'Git',
+			action: 'Get',
+			req: {
+				userData: userData,
+				repository: repository,
+				branch: branch,
+				repositoryPath: repositoryPath
+			},
+			result: resp
+		});
+		res.json(resp);
+		res.end();
+		return;
+	});
+};
+
+var list = function(req, res, next) {
+	var resp = {
+		code: 200,
+		result: 'OK',
+		data: userData.repositoryList
+	}
+	req.log.info({
+		catalog: 'Git',
+		action: 'List',
+		req: userData,
+		result: resp
+	});
+	res.json(resp);
+	res.end();
+	return;
+}
+
+var addCollaborator = function(req, res, next) {
+	var collaboratorName = req.body.username;
+	var repository = req.params.repository;
+	var repositoryPath = path.join(app.settings.config.gitPath, repository);
+
+	// Check permission
+	if (userData.repositoryList.indexOf(repository) < 0) {
+		req.log.info({
+			catalog: 'Git',
+			action: 'Add Collaborator',
+			req: {
+				userData: userData,
+				collaboratorName: collaboratorName,
+				repository: repository,
+				repositoryPath: repositoryPath
+			},
+			result: 'No Permission.'
+		});
+		res.status(403).send('No Permission');
+		return;
+	}
+
+	// Check collaborator name
+	GitModule.addCollaborator(repository, collaboratorName).then(function(result) {
+		req.log.info({
+			catalog: 'Git',
+			action: 'Add Collaborator',
+			req: {
+				userData: userData,
+				collaboratorName: collaboratorName,
+				repository: repository,
+				repositoryPath: repositoryPath
+			},
+			result: result
+		});
+		res.json(result);
+		res.end();
+		return;
+	}, function(err) {
+		req.log.error({
+			catalog: 'Git',
+			action: 'Add Collaborator',
+			req: {
+				userData: userData,
+				collaboratorName: collaboratorName,
 				repository: repository,
 				repositoryPath: repositoryPath
 			},
@@ -193,37 +344,66 @@ var get = function(req, res, next) {
 	});
 };
 
-var list = function(req, res, next) {
-	git.listRepo(app.settings.config.gitPath).then(function(result) {
-		var resp = {
-			code: 200,
-			result: 'OK',
-			data: result
-		}
+var deleteCollaborator = function(req, res, next) {
+	var collaboratorName = req.body.username;
+	var repository = req.params.repository;
+	var repositoryPath = path.join(app.settings.config.gitPath, repository);
+
+	// Check permission
+	if (userData.repositoryList.indexOf(repository) < 0) {
 		req.log.info({
 			catalog: 'Git',
-			action: 'List',
-			req: null,
-			result: resp
+			action: 'Delete Collaborator',
+			req: {
+				userData: userData,
+				collaboratorName: collaboratorName,
+				repository: repository,
+				repositoryPath: repositoryPath
+			},
+			result: 'No Permission.'
 		});
-		res.json(resp);
+		res.status(403).send('No Permission');
+		return;
+	}
+
+	// Check collaborator name
+	GitModule.deleteCollaborator(repository, collaboratorName).then(function(result) {
+		req.log.info({
+			catalog: 'Git',
+			action: 'Delete Collaborator',
+			req: {
+				userData: userData,
+				collaboratorName: collaboratorName,
+				repository: repository,
+				repositoryPath: repositoryPath
+			},
+			result: result
+		});
+		res.json(result);
 		res.end();
 		return;
 	}, function(err) {
 		req.log.error({
 			catalog: 'Git',
-			action: 'List',
-			req: null,
+			action: 'Delete Collaborator',
+			req: {
+				userData: userData,
+				collaboratorName: collaboratorName,
+				repository: repository,
+				repositoryPath: repositoryPath
+			},
 			error: err
 		});
 		res.status(500).send('Server Error: ' + err);
 		return;
 	});
-}
+};
 
 module.exports = {
 	create: create,
 	destroy: destroy,
 	list: list,
-	get: get
+	get: get,
+	addCollaborator: addCollaborator,
+	deleteCollaborator: deleteCollaborator
 }

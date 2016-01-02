@@ -52,6 +52,7 @@ module.exports.init = function(dbPath, dbName) {
 			username: 'admin',
 			password: crypto.createHash('md5').update('admin').digest("hex"),
 			repositoryList: [],
+			collaborateRepositoryList: [],
 			sshKeyList: [],
 			type: 9
 		}],
@@ -74,7 +75,7 @@ module.exports.init = function(dbPath, dbName) {
 	// Check data format
 	try {
 		var data = fs.readFileSync(database, 'utf8');
-		if (!IsJsonString(data)) {
+		if (data.length <= 0 || !IsJsonString(data)) {
 			fs.writeFileSync(database, JSON.stringify(initData));
 		}
 	} catch (err) {

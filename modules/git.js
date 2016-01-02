@@ -54,16 +54,11 @@ var destroy = function(username, repositoryPath, repositoryName, db, dbType) {
 		var userList = data.userList;
 		for (var i in userList) {
 			if (userList[i].username == username) {
-				var index = userList[i].repositoryList.indexOf(repositoryName)
-				if (index > -1) {
-					userList[i].repositoryList.splice(index, 1);
+				var index = userList[i].repositoryList.indexOf(repositoryName);
+				userList[i].repositoryList.splice(index, 1);
 
-					// Write back to database
-					return db.write(JSON.stringify(data));
-				} else {
-					
-					return deferred.resolve(GIT_NO_PERMISSION);
-				}
+				// Write back to database
+				return db.write(JSON.stringify(data));
 			}
 		}
 		return deferred.resolve(UserModule.USER_NOT_FOUND);
@@ -157,6 +152,63 @@ var delRepo = function(repositoryPath) {
 	return deferred.promise;
 }
 
+var addCollaborator = function(repository, collaboratorName) {
+	var deferred = Promise.defer();
+	// Read user data
+	db.read().then(function(data) {
+		var userList = data.userList;
+		for (var i in userList) {
+			if (userList[i].username == collaboratorName) {
+				userList[i].collaborateRepositoryList.push(repository);
+
+				// Write back to database
+				return db.write(JSON.stringify(data));
+			}
+		}
+		return deferred.resolve(UserModule.USER_NOT_FOUND);
+	}, function(err) {
+		return deferred.reject(err);
+	})
+
+	// The result of write
+	.then(function(result) {
+		return deferred.resolve(GIT_OK);
+	}, function(err) {
+		return deferred.reject(err);
+	})
+	return deferred.promise;
+}
+
+var deleteCollaborator = function(repository, collaboratorName) {
+	var deferred = Promise.defer();
+	// Read user data
+	db.read().then(function(data) {
+		var userList = data.userList;
+		for (var i in userList) {
+			if (userList[i].username == collaboratorName) {
+				var index = userList[i].collaborateRepositoryList.indexOf(repository);
+				if (index > -1) {
+					userList[i].collaborateRepositoryList.splice(index, 1);
+				}
+
+				// Write back to database
+				return db.write(JSON.stringify(data));
+			}
+		}
+		return deferred.resolve(UserModule.USER_NOT_FOUND);
+	}, function(err) {
+		return deferred.reject(err);
+	})
+
+	// The result of write
+	.then(function(result) {
+		return deferred.resolve(GIT_OK);
+	}, function(err) {
+		return deferred.reject(err);
+	})
+	return deferred.promise;
+}
+
 module.exports = {
 	init: init,
 	destroy: destroy,
@@ -164,5 +216,7 @@ module.exports = {
 	listBranch: listBranch,
 	listTag: listTag,
 	listCommit: listCommit,
-	open: open
+	open: open,
+	addCollaborator: addCollaborator,
+	deleteCollaborator: deleteCollaborator
 }

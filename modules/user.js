@@ -8,6 +8,11 @@ var USER_NOT_FOUND = {code: 1001, result: 'User not found.'};
 var USER_WITH_INVALIDE_PASSWORD = {code: 1002, result: 'User with invalide password.'};
 var USER_HAS_SAME_KEY = {code: 1003, result: 'SSH key already existing.'};
 
+// User Type
+var USER_TYPE_BLOCK = -1;
+var USER_TYPE_NEED_TO_SET_PASSWORD = 0;
+var USER_TYPE_NORMAL = 1;
+var USER_TYPE_ADMIN = 9;
 
 var User = function(db, dbType) {
 	return {
@@ -63,6 +68,31 @@ var User = function(db, dbType) {
 			}, function(err) {
 				return deferred.reject(err);
 			});
+			return deferred.promise;
+		},
+		deleteUser: function(username) {
+			var deferred = Promise.defer();
+			if (dbType == 'txt') {
+				db.read().then(function(data) {
+					var userList = data.userList;
+					for (var i in userList) {
+						if (userList[i].username == username) {
+							userList.splice(i, 1);
+							return db.write(JSON.stringify(data));
+						}
+					}
+					return deferred.resolve(USER_NOT_FOUND);
+				}, function(err) {
+					return deferred.reject(err);
+				})
+
+				// The result of write
+				.then(function(result) {
+					return deferred.resolve(USER_OK);
+				}, function(err) {
+					return deferred.reject(err);
+				})
+			}
 			return deferred.promise;
 		},
 		isUserExisting: function(username) {
@@ -215,5 +245,10 @@ module.exports = {
 	USER_OK: USER_OK,
 	USER_EXISTING: USER_EXISTING,
 	USER_NOT_FOUND: USER_NOT_FOUND,
-	USER_WITH_INVALIDE_PASSWORD: USER_WITH_INVALIDE_PASSWORD
+	USER_WITH_INVALIDE_PASSWORD: USER_WITH_INVALIDE_PASSWORD,
+
+	USER_TYPE_BLOCK,
+	USER_TYPE_NEED_TO_SET_PASSWORD,
+	USER_TYPE_NORMAL,
+	USER_TYPE_ADMIN
 }

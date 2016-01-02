@@ -32,7 +32,7 @@ var isLogin = function(req, res, next) {
 					});
 
 					// Should denied the user type with < 0
-					if (this.userData.type < 0) {
+					if (this.userData.type <= UserModule.USER_TYPE_BLOCK) {
 						res.status(403).send('Access Denied');
 						res.end();
 						return;
@@ -80,7 +80,7 @@ var signup = function(req, res, next) {
 		sshKeyList: [],
 		repositoryList: [],
 		collaborateRepositoryList: [],
-		type: 0
+		type: UserModule.USER_TYPE_NORMAL
 	}
 	var User = UserModule.init(db, app.settings.config.database.type);
 	User.signup(userData).then(function(result) {

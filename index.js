@@ -33,6 +33,8 @@ app.post('/api/user/logout', [userRouter.logout]);
 // Admin
 app.get('/api/admin/git/repository', [dbRouter.init, userRouter.isLogin, adminRouter.checkAdminPermission, adminRouter.listRepository]);
 app.get('/api/admin/user', [dbRouter.init, userRouter.isLogin, adminRouter.checkAdminPermission, adminRouter.listUser]);
+app.put('/api/admin/user', [dbRouter.init, userRouter.isLogin, adminRouter.checkAdminPermission, adminRouter.addUser]);
+app.delete('/api/admin/user', [dbRouter.init, userRouter.isLogin, adminRouter.checkAdminPermission, adminRouter.deleteUser]);
 app.put('/api/user/ssh_key', [dbRouter.init, userRouter.isLogin, adminRouter.checkAdminPermission, userRouter.addSshKey])
 app.delete('/api/user/ssh_key', [dbRouter.init, userRouter.isLogin, adminRouter.checkAdminPermission, userRouter.deleteSshKey])
 

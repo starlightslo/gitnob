@@ -3,6 +3,8 @@ var fs = require('fs');
 var path = require('path');
 var Promise = require('bluebird');
 
+var UserModule = require('./user');
+
 var db = function(dbPath, dbName) {
 	var db = path.join(dbPath, dbName);
 	return {
@@ -54,7 +56,7 @@ module.exports.init = function(dbPath, dbName) {
 			repositoryList: [],
 			collaborateRepositoryList: [],
 			sshKeyList: [],
-			type: 9
+			type: UserModule.USER_TYPE_ADMIN
 		}],
 		repositoryList: []
 	}

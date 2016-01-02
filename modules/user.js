@@ -6,6 +6,7 @@ var USER_OK = {code: 200, result: 'OK'};
 var USER_EXISTING = {code: 1000, result: 'User already existing.'};
 var USER_NOT_FOUND = {code: 1001, result: 'User not found.'};
 var USER_WITH_INVALIDE_PASSWORD = {code: 1002, result: 'User with invalide password.'};
+var USER_HAS_SAME_KEY = {code: 1003, result: 'SSH key already existing.'};
 
 
 var User = function(db, dbType) {
@@ -82,7 +83,7 @@ var User = function(db, dbType) {
 			}
 			return deferred.promise;
 		},
-		addSshKey: function(username, sshKey) {
+		addSshKey: function(username, sshKey, keyName) {
 			var deferred = Promise.defer();
 			var isUserExisting = this.isUserExisting;
 			if (dbType == 'txt') {
@@ -90,13 +91,16 @@ var User = function(db, dbType) {
 					var userList = data.userList;
 					for (var i in userList) {
 						if (userList[i].username == username) {
-							var index = userList[i].sshKeyList.indexOf(sshKey)
-							if (index > -1) {
-								return 'ok';
-							} else {
-								userList[i].sshKeyList.push(sshKey);
-								return db.write(JSON.stringify(data));
+							for (var j in userList[i].sshKeyList) {
+								if (userList[j].sshKeyList[j].key === sshKey && userList[i].sshKeyList[j].name === keyName) {
+									return deferred.resolve(USER_HAS_SAME_KEY);
+								}
 							}
+							userList[i].sshKeyList.push({
+								key: sshKey,
+								name: keyName
+							});
+							return db.write(JSON.stringify(data));
 						}
 					}
 					return deferred.resolve(USER_NOT_FOUND);
@@ -115,7 +119,7 @@ var User = function(db, dbType) {
 				.then(function(result) {
 					if (result.existing) {
 						delete result.data.password;
-						
+
 						return deferred.resolve({
 							code: USER_OK.code,
 							result: USER_OK.result,

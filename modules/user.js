@@ -92,7 +92,7 @@ var User = function(db, dbType) {
 					for (var i in userList) {
 						if (userList[i].username == username) {
 							for (var j in userList[i].sshKeyList) {
-								if (userList[j].sshKeyList[j].key === sshKey && userList[i].sshKeyList[j].name === keyName) {
+								if (userList[i].sshKeyList[j].key === sshKey && userList[i].sshKeyList[j].name === keyName) {
 									return deferred.resolve(USER_HAS_SAME_KEY);
 								}
 							}
@@ -100,6 +100,54 @@ var User = function(db, dbType) {
 								key: sshKey,
 								name: keyName
 							});
+							return db.write(JSON.stringify(data));
+						}
+					}
+					return deferred.resolve(USER_NOT_FOUND);
+				}, function(err) {
+					return deferred.reject(err);
+				})
+
+				// The result of write
+				.then(function(result) {
+					return isUserExisting(username);
+				}, function(err) {
+					return deferred.reject(err);
+				})
+
+				// The result of user
+				.then(function(result) {
+					if (result.existing) {
+						delete result.data.password;
+
+						return deferred.resolve({
+							code: USER_OK.code,
+							result: USER_OK.result,
+							data: result.data
+						});
+					} else {
+						// User not found
+						return deferred.resolve(USER_NOT_FOUND);
+					}
+				}, function(err) {
+					return deferred.reject(err);
+				})
+			}
+			return deferred.promise;
+		},
+		deleteSshKey: function(username, sshKey, keyName) {
+			var deferred = Promise.defer();
+			var isUserExisting = this.isUserExisting;
+			if (dbType == 'txt') {
+				db.read().then(function(data) {
+					var userList = data.userList;
+					for (var i in userList) {
+						if (userList[i].username == username) {
+							for (var j in userList[i].sshKeyList) {
+								if (userList[i].sshKeyList[j].key === sshKey && userList[i].sshKeyList[j].name === keyName) {
+									userList[i].sshKeyList.splice(j, 1);
+								}
+							}
 							return db.write(JSON.stringify(data));
 						}
 					}

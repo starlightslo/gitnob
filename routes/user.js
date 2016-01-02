@@ -235,10 +235,51 @@ var addSshKey = function(req, res, next) {
 	});
 }
 
+var deleteSshKey = function(req, res, next) {
+	var sshKey = req.body.sshKey;
+	var keyName = req.body.keyName;
+
+	// Check value of input
+	/* =======================
+	          TODO
+	======================= */
+
+	var User = UserModule.init(db, app.settings.config.database.type);
+	User.deleteSshKey(userData.username, sshKey, keyName).then(function(result) {
+		req.log.info({
+			catalog: 'User',
+			action: 'Delete SSH Key',
+			req: {
+				userData: userData,
+				sshKey: sshKey,
+				keyName: keyName
+			},
+			result: result
+		});
+		res.json(result);
+		res.end();
+		return;
+	}, function(err) {
+		req.log.error({
+			catalog: 'User',
+			action: 'Delete SSH Key',
+			req: {
+				userData: userData,
+				sshKey: sshKey,
+				keyName: keyName
+			},
+			error: err
+		});
+		res.status(500).send('Server Error: ' + err);
+		return;
+	});
+}
+
 module.exports = {
 	signup: signup,
 	signin: signin,
 	logout: logout,
 	isLogin: isLogin,
-	addSshKey: addSshKey
+	addSshKey: addSshKey,
+	deleteSshKey: deleteSshKey
 }

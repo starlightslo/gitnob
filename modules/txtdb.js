@@ -1,4 +1,4 @@
-var crypto = require('crypto');
+var bcrypt = require('bcryptjs');
 var fs = require('fs');
 var path = require('path');
 var Promise = require('bluebird');
@@ -50,7 +50,7 @@ module.exports.init = function(dbPath, dbName) {
 	var initData = {
 		userList: [{
 			username: 'admin',
-			password: crypto.createHash('md5').update('admin').digest("hex"),
+			password: bcrypt.hashSync('admin'),
 			repositoryList: [],
 			collaborateRepositoryList: [],
 			sshKeyList: [],

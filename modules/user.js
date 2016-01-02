@@ -1,4 +1,4 @@
-var crypto = require('crypto');
+var bcrypt = require('bcryptjs');
 var Promise = require('bluebird');
 
 // Response status
@@ -47,7 +47,7 @@ var User = function(db, dbType) {
 				if (result.existing) {
 					var user = result.data;
 					// Check password
-					if (userData.password === user.password) {
+					if (bcrypt.compareSync(userData.password, user.password)) {
 						return deferred.resolve({
 							code: USER_OK.code,
 							result: USER_OK.result,

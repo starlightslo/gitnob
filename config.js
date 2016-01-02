@@ -9,6 +9,9 @@ module.exports = {
 		path: path.join(__dirname, 'db'),
 		name: 'db.txt'
 	},
+	toggles: {
+		userSignup: false
+	},
 	logConfiguration: {
 		name: 'GitNob',
 		streams: [{

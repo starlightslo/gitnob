@@ -18,10 +18,10 @@ var userRouter = require('./routes/user');
 app.get('/api/git/repository', [dbRouter.init, userRouter.isLogin, gitRouter.list]);
 app.get('/api/git/repository/:repository', [dbRouter.init, userRouter.isLogin, gitRouter.get]);
 app.put('/api/git/repository/:repository/collaborator', [dbRouter.init, userRouter.isLogin, gitRouter.addCollaborator]);
-app.delete('/api/git/repository/:repository/collaborator', [dbRouter.init, userRouter.isLogin, gitRouter.deleteCollaborator]);
+app.delete('/api/git/repository/:repository/collaborator/:collaborator', [dbRouter.init, userRouter.isLogin, gitRouter.deleteCollaborator]);
 app.get('/api/git/repository/:repository/:ref/:head/:branch', [dbRouter.init, userRouter.isLogin, gitRouter.get]);
 app.put('/api/git/repository/create', [dbRouter.init, userRouter.isLogin, gitRouter.create]);
-app.delete('/api/git/repository/destroy', [dbRouter.init, userRouter.isLogin, gitRouter.destroy]);
+app.delete('/api/git/repository/:repository', [dbRouter.init, userRouter.isLogin, gitRouter.destroy]);
 
 // User
 app.post('/api/user/signup', [dbRouter.init, userRouter.signup]);

@@ -65,7 +65,7 @@ var create = function(req, res, next) {
 };
 
 var destroy = function(req, res, next) {
-	var repositoryName = req.body.name;
+	var repositoryName = req.params.repository;
 	if (!repositoryName) {
 		req.log.info({
 			catalog: 'Git',
@@ -97,7 +97,7 @@ var destroy = function(req, res, next) {
 	}
 
 	// Check permission
-	if (userData.repositoryList.indexOf(repository) < 0) {
+	if (userData.repositoryList.indexOf(repositoryName) < 0) {
 		req.log.info({
 			catalog: 'Git',
 			action: 'Destory',
@@ -345,8 +345,8 @@ var addCollaborator = function(req, res, next) {
 };
 
 var deleteCollaborator = function(req, res, next) {
-	var collaboratorName = req.body.username;
 	var repository = req.params.repository;
+	var collaboratorName = req.params.collaborator;
 	var repositoryPath = path.join(app.settings.config.gitPath, repository);
 
 	// Check permission

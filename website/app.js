@@ -5,7 +5,8 @@ myApp.config(function($routeProvider) {
 		controller: 'MainController',
 		templateUrl: 'views/index.html',
 		resolve: {
-			data: function (ViewService) {
+			data: function (ViewService, UserService) {
+				UserService.getUser();
 				return ViewService.setView(1);
 			}
 		}
@@ -14,7 +15,8 @@ myApp.config(function($routeProvider) {
 		controller: 'MainController',
 		templateUrl: 'views/index.html',
 		resolve: {
-			data: function (ViewService) {
+			data: function (ViewService, UserService) {
+				UserService.getUser();
 				return ViewService.setView(1);
 			}
 		}
@@ -23,7 +25,8 @@ myApp.config(function($routeProvider) {
 		controller: 'MainController',
 		templateUrl: 'views/signup.html',
 		resolve: {
-			data: function (ViewService) {
+			data: function (ViewService, UserService) {
+				UserService.getUser();
 				return ViewService.setView(2);
 			}
 		}
@@ -32,7 +35,8 @@ myApp.config(function($routeProvider) {
 		controller: 'MainController',
 		templateUrl: 'views/repository.html',
 		resolve: {
-			data: function (ViewService) {
+			data: function (ViewService, UserService) {
+				UserService.getUser();
 				return ViewService.setView(3);
 			}
 		}
@@ -41,7 +45,8 @@ myApp.config(function($routeProvider) {
 		controller: 'MainController',
 		templateUrl: 'views/sshkey.html',
 		resolve: {
-			data: function (ViewService) {
+			data: function (ViewService, UserService) {
+				UserService.getUser();
 				return ViewService.setView(4);
 			}
 		}
@@ -50,7 +55,8 @@ myApp.config(function($routeProvider) {
 		controller: 'MainController',
 		templateUrl: 'views/settings.html',
 		resolve: {
-			data: function (ViewService) {
+			data: function (ViewService, UserService) {
+				UserService.getUser();
 				return ViewService.setView(5);
 			}
 		}
@@ -59,7 +65,8 @@ myApp.config(function($routeProvider) {
 		redirectTo: '/',
 		templateUrl: 'views/index.html',
 		resolve: {
-			data: function (ViewService) {
+			data: function (ViewService, UserService) {
+				UserService.getUser();
 				return ViewService.setView(1);
 			}
 		}

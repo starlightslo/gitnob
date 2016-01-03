@@ -14,14 +14,18 @@
 					<a class="navbar-brand" href="">GitNob</a>
 				</div>
 				<div id="navbar" class="navbar-collapse collapse">
-					<ul class="nav navbar-nav" style="display: none;" ng-style="showNavbar();">
-						<li class="active"><a href="#/">Repositories</a></li>
-						<li><a href="#/sshkey">SSH Key</a></li>
-						<li><a href="#/settings">Settings</a></li>
+					<ul class="nav navbar-nav" style="display: none;" ng-init="updateViewClass();" ng-style="navbarClass">
+						<li ng-class="repositoryClass"><a href="#/repository" ng-click="setView(3);">Repositories</a></li>
+						<li ng-class="sshkeyClass"><a href="#/sshkey" ng-click="setView(4);">SSH Key</a></li>
+						<li ng-class="settingsClass"><a href="#/settings" ng-click="setView(5);">Settings</a></li>
 					</ul>
-					<ul class="nav navbar-nav navbar-right" style="display: none;" ng-style="showLoginNavbar();">
+					<ul class="nav navbar-nav navbar-right" style="display: none;" ng-init="updateViewClass();" ng-style="loginNavbarClass">
 						<li ng-class="signinClass"><a href="#/signin" ng-click="setView(1);">Sing In</a></li>
 						<li ng-class="signupClass"><a href="#/signup" ng-click="setView(2);">Sing In</a></li>
+					</ul>
+					<ul class="nav navbar-nav navbar-right" style="display: none;" ng-init="updateViewClass();" ng-style="memberNavbarClass">
+						<li><div class="nav-button">Hi , {{username}}</div></li>
+						<li><a href ng-click="logout();">Logout</a></li>
 					</ul>
 				</div><!--/.nav-collapse -->
 			</div>

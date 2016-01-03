@@ -31,4 +31,4 @@ app.post('/api/user/signin', [dbRouter.init, userRouter.signin]);
 app.post('/api/user/logout', [userRouter.logout]);
 app.post('/api/user/change_password', [dbRouter.init, userRouter.isLogin, userRouter.changePassword]);
 app.put('/api/user/ssh_key', [dbRouter.init, userRouter.isLogin, userRouter.addSshKey])
-app.delete('/api/user/ssh_key', [dbRouter.init, userRouter.isLogin, userRouter.deleteSshKey])
+app.delete('/api/user/ssh_key/:name', [dbRouter.init, userRouter.isLogin, userRouter.deleteSshKey])

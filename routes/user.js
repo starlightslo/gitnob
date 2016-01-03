@@ -306,8 +306,7 @@ var addSshKey = function(req, res, next) {
 }
 
 var deleteSshKey = function(req, res, next) {
-	var sshKey = req.body.sshKey;
-	var keyName = req.body.keyName;
+	var keyName = req.params.name;
 
 	// Check value of input
 	/* =======================
@@ -315,7 +314,7 @@ var deleteSshKey = function(req, res, next) {
 	======================= */
 
 	var User = UserModule.init(db, app.settings.config.database.type);
-	User.deleteSshKey(userData.username, sshKey, keyName).then(function(result) {
+	User.deleteSshKey(userData.username, keyName).then(function(result) {
 		req.log.info({
 			catalog: 'User',
 			action: 'Delete SSH Key',

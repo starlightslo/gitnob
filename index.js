@@ -25,6 +25,7 @@ app.put('/api/git/repository/create', [dbRouter.init, userRouter.isLogin, gitRou
 app.delete('/api/git/repository/destroy', [dbRouter.init, userRouter.isLogin, gitRouter.destroy]);
 
 // User
+app.get('/api/user', [dbRouter.init, userRouter.isLogin, userRouter.user]);
 app.post('/api/user/signup', [dbRouter.init, userRouter.signup]);
 app.post('/api/user/signin', [dbRouter.init, userRouter.signin]);
 app.post('/api/user/logout', [userRouter.logout]);

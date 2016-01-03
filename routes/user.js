@@ -4,6 +4,19 @@ var TOKEN_EXPRIED = 60 * 60 * 30;
 
 var UserModule = require('../modules/user');
 
+var user = function(req, res, next) {
+	req.log.info({
+		catalog: 'User',
+		action: 'User',
+		req: userData,
+		result: userData
+	});
+	console.log(userData.username);
+	res.json(userData);
+	res.end();
+	return;
+}
+
 var isLogin = function(req, res, next) {
 	var token = req.session.token;
 	if (token) {
@@ -333,6 +346,7 @@ var deleteSshKey = function(req, res, next) {
 }
 
 module.exports = {
+	user: user,
 	signup: signup,
 	signin: signin,
 	logout: logout,

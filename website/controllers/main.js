@@ -7,6 +7,7 @@ myApp.controller('MainController', function($rootScope, $scope, $http, $location
 	}
 
 	$scope.getRepositories = function() {
+		$scope.repositoryList = [];
 		$http({
 			method: 'GET',
 			url: '/api/git/repository'
@@ -15,7 +16,14 @@ myApp.controller('MainController', function($rootScope, $scope, $http, $location
 			if (response.status == 200) {
 				if (response.data.code == 200) {
 					console.log(response.data.data);
-					$scope.repositoryList = response.data.data;
+					var repositories = response.data.data;
+					for (var i in repositories) {
+						$scope.repositoryList.push({
+							name: repositories[i],
+							collaboratorList: []
+						});
+						getCollaborators(i);
+					}
 				}
 			}
 		}, function errorCallback(error) {
@@ -69,4 +77,23 @@ myApp.controller('MainController', function($rootScope, $scope, $http, $location
 		});
 	}
 
+	// Inner functions
+	var getCollaborators = function(index) {
+		var repository = $scope.repositoryList[index].name;
+		$http({
+			method: 'GET',
+			url: '/api/git/repository/' + repository + '/collaborator'
+		}).then(function successCallback(response) {
+			console.log(response);
+			if (response.status == 200) {
+				if (response.data.code == 200) {
+					console.log();
+					$scope.repositoryList[index].collaboratorList = response.data.data;
+				}
+			}
+		}, function errorCallback(error) {
+			console.log(error);
+			$location.path("/");
+		});
+	}
 });

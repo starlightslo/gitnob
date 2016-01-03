@@ -1,0 +1,19 @@
+.content-title {
+	margin-bottom: 10px;
+}
+.sub-header {
+	display: inline;
+}
+.content-title-right {
+	float: right!important;
+}
+.content {
+	display: inline;
+}
+.page-nav {
+	text-align: center;
+}
+.label {
+	margin: 0 3 0 3;
+	line-height: 2;
+}

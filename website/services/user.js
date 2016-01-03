@@ -37,7 +37,6 @@ myApp.factory('UserService', function($rootScope, $http) {
 			return userData.sshKeyList;
 		},
 		getUser: function() {
-			console.log('get user');
 			var setUserData = this.setUserData;
 			$http({
 				method: 'GET',

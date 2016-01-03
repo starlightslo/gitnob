@@ -24,6 +24,14 @@ myApp.controller('MainController', function($rootScope, $scope, $http, $location
 		});
 	}
 
+	$scope.getSshKeys = function() {
+		if (UserService.isLogin()) {
+			$scope.sshKeyList = UserService.getSshKeys();
+		} else {
+			$location.path("/");
+		}
+	}
+
 	$scope.login = function() {
 		var data = {
 			username: $scope.username,

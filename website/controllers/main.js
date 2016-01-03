@@ -3,7 +3,47 @@ var myApp = angular.module('myApp');
 myApp.controller('MainController', function($rootScope, $scope, $http, $location, $routeParams, UserService) {
 
 	$scope.isLogin = function() {
-		return UserService.isLogin();
+		if (!UserService.isLogin()) {
+			$location.path("/");
+		} else {
+			return true;
+		}
+	}
+
+	$scope.createRepository = function() {
+		var data = {
+			name: $scope.repositoryName
+		}
+		$http({
+			method: 'PUT',
+			url: '/api/git/repository/create',
+			data: data
+		}).then(function successCallback(response) {
+			console.log(response);
+			if (response.status == 200) {
+				if (response.data.code == 200) {
+					$location.path("/repository");
+				}
+			}
+		}, function errorCallback(error) {
+			console.log(error);
+			$location.path("/");
+		});
+	}
+
+	$scope.deleteRepository = function(repository) {
+		$http.delete('/api/git/repository/' + repository)
+		.then(function successCallback(response) {
+			console.log(response);
+			if (response.status == 200) {
+				if (response.data.code == 200) {
+					$scope.getRepositories();
+				}
+			}
+		}, function errorCallback(error) {
+			console.log(error);
+			$location.path("/");
+		});
 	}
 
 	$scope.getRepositories = function() {
@@ -75,6 +115,11 @@ myApp.controller('MainController', function($rootScope, $scope, $http, $location
 			console.log(error);
 			$location.path("/");
 		});
+	}
+
+	$scope.redirectTo = function(path) {
+		console.log(path);
+		$location.path(path);
 	}
 
 	// Inner functions

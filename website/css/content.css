@@ -6,6 +6,7 @@
 }
 .content-title-right {
 	float: right!important;
+	display: flex;
 }
 .content {
 	display: inline;

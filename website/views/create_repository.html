@@ -1,0 +1,6 @@
+<form ng-controller="MainController" ng-submit="createRepository();" class="form-signin" ng-if="isLogin();">
+	<h2 class="form-signin-heading">New Repository</h2>
+	<label for="inputRepository" class="sr-only">Repository name</label>
+	<input type="repositoryName" ng-model="repositoryName" id="inputRepository" class="form-control" placeholder="Repository name" required autofocus>
+	<button class="btn btn-lg btn-primary btn-block" type="submit">Create</button>
+</form>

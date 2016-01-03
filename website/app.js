@@ -6,7 +6,6 @@ myApp.config(function($routeProvider) {
 		templateUrl: 'views/index.html',
 		resolve: {
 			data: function (ViewService, UserService) {
-				UserService.getUser();
 				return ViewService.setView(1);
 			}
 		}
@@ -16,7 +15,6 @@ myApp.config(function($routeProvider) {
 		templateUrl: 'views/index.html',
 		resolve: {
 			data: function (ViewService, UserService) {
-				UserService.getUser();
 				return ViewService.setView(1);
 			}
 		}
@@ -26,7 +24,6 @@ myApp.config(function($routeProvider) {
 		templateUrl: 'views/signup.html',
 		resolve: {
 			data: function (ViewService, UserService) {
-				UserService.getUser();
 				return ViewService.setView(2);
 			}
 		}
@@ -34,6 +31,16 @@ myApp.config(function($routeProvider) {
 	.when('/repository', {
 		controller: 'MainController',
 		templateUrl: 'views/repository.html',
+		resolve: {
+			data: function (ViewService, UserService) {
+				UserService.getUser();
+				return ViewService.setView(3);
+			}
+		}
+	})
+	.when('/repository/create', {
+		controller: 'MainController',
+		templateUrl: 'views/create_repository.html',
 		resolve: {
 			data: function (ViewService, UserService) {
 				UserService.getUser();
@@ -66,9 +73,23 @@ myApp.config(function($routeProvider) {
 		templateUrl: 'views/index.html',
 		resolve: {
 			data: function (ViewService, UserService) {
-				UserService.getUser();
 				return ViewService.setView(1);
 			}
 		}
 	})
 });
+
+myApp.directive('ngConfirmClick', [
+	function(){
+		return {
+			link: function (scope, element, attr) {
+				var msg = attr.ngConfirmClick || "Are you sure?";
+				var clickAction = attr.confirmedClick;
+				element.bind('click',function (event) {
+					if ( window.confirm(msg) ) {
+						scope.$eval(clickAction)
+					}
+				});
+			}
+		};
+	}])

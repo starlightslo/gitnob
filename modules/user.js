@@ -65,6 +65,39 @@ var User = function(db, dbType) {
 			});
 			return deferred.promise;
 		},
+		changePassword: function(passwordData) {
+			var deferred = Promise.defer();
+			if (dbType == 'txt') {
+				db.read().then(function(data) {
+					var userList = data.userList;
+					for (var i in userList) {
+						if (userList[i].username == passwordData.username) {
+							// Check password
+							if (bcrypt.compareSync(passwordData.password, userList[i].password)) {
+								// Change to the new password
+								userList[i].password = passwordData.newPassword;
+
+								// Write back to database
+								return db.write(JSON.stringify(data));
+							} else {
+								return deferred.resolve(USER_WITH_INVALIDE_PASSWORD);
+							}
+						}
+					}
+					return deferred.resolve(USER_NOT_FOUND);
+				}, function(err) {
+					return deferred.reject(err);
+				})
+
+				// The result of write
+				.then(function(result) {
+					return deferred.resolve(USER_OK);
+				}, function(err) {
+					return deferred.reject(err);
+				});
+			}
+			return deferred.promise;
+		},
 		isUserExisting: function(username) {
 			var deferred = Promise.defer();
 			if (dbType == 'txt') {

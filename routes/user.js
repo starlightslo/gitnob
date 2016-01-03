@@ -4,6 +4,19 @@ var TOKEN_EXPRIED = 60 * 60 * 30;
 
 var UserModule = require('../modules/user');
 
+var user = function(req, res, next) {
+	req.log.info({
+		catalog: 'User',
+		action: 'User',
+		req: userData,
+		result: userData
+	});
+	console.log(userData.username);
+	res.json(userData);
+	res.end();
+	return;
+}
+
 var isLogin = function(req, res, next) {
 	var token = req.session.token;
 	if (token) {
@@ -169,6 +182,49 @@ var signin = function(req, res, next) {
 	});
 }
 
+var changePassword = function(req, res, next) {
+	var password = req.body.password;
+	var newPassword = req.body.newPassword;
+
+	// Check value of input
+	/* =======================
+	          TODO
+	======================= */
+
+	var passwordData = {
+		username: userData.username,
+		password: password,
+		newPassword: bcrypt.hashSync(newPassword)
+	}
+	var User = UserModule.init(db, app.settings.config.database.type);
+	User.changePassword(passwordData).then(function(result) {
+		req.log.info({
+			catalog: 'User',
+			action: 'Change Password',
+			req: {
+				userData: userData,
+				passwordData: passwordData
+			},
+			result: result
+		});
+		res.json(result);
+		res.end();
+		return;
+	}, function(err) {
+		req.log.error({
+			catalog: 'User',
+			action: 'Change Password',
+			req: {
+				userData: userData,
+				passwordData: passwordData
+			},
+			error: err
+		});
+		res.status(500).send('Server Error: ' + err);
+		return;
+	});
+}
+
 var logout = function(req, res, next) {
 	var token = req.session.token;
 	if (token) {
@@ -290,9 +346,11 @@ var deleteSshKey = function(req, res, next) {
 }
 
 module.exports = {
+	user: user,
 	signup: signup,
 	signin: signin,
 	logout: logout,
+	changePassword: changePassword,
 	isLogin: isLogin,
 	addSshKey: addSshKey,
 	deleteSshKey: deleteSshKey

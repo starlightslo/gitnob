@@ -25,11 +25,21 @@ myApp.controller('MainController', function($rootScope, $scope, $http, $location
 	}
 
 	$scope.getSshKeys = function() {
-		if (UserService.isLogin()) {
-			$scope.sshKeyList = UserService.getSshKeys();
-		} else {
+		$http({
+			method: 'GET',
+			url: '/api/user/'
+		}).then(function successCallback(response) {
+			console.log(response);
+			if (response.status == 200) {
+				UserService.setUserData(response.data);
+				$scope.sshKeyList = UserService.getSshKeys();
+			} else {
+				$location.path("/");
+			}
+		}, function errorCallback(error) {
+			console.log(error);
 			$location.path("/");
-		}
+		});
 	}
 
 	$scope.login = function() {

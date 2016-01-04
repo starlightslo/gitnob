@@ -1,6 +1,7 @@
 var myApp = angular.module('myApp');
 
 myApp.controller('MainController', function($rootScope, $scope, $http, $location, $routeParams, UserService) {
+	$scope.errorMessage = '';
 
 	$scope.isLogin = function() {
 		if (!UserService.isLogin()) {
@@ -115,6 +116,39 @@ myApp.controller('MainController', function($rootScope, $scope, $http, $location
 			console.log(error);
 			$location.path("/");
 		});
+	}
+
+	$scope.signup = function() {
+		var data = {
+			username: $scope.username,
+			password: $scope.password
+		}
+		$http({
+			method: 'POST',
+			url: '/api/user/signup',
+			data: data
+		}).then(function successCallback(response) {
+			console.log(response);
+			if (response.status == 200) {
+				if (response.data.code == 200) {
+					UserService.setUserData(response.data.data);
+					$location.path("/repository");
+				} else {
+					$scope.errorMessage = response.data.result;
+					$scope.isNotMatch = true;
+					$scope.usernameClass = 'invalid-form';
+					$scope.passwordClass = 'invalid-form';
+					$scope.checkPasswordClass = 'invalid-form';
+				}
+			}
+
+			$scope.username = '';
+			$scope.password = '';
+			$scope.checkPassword = '';
+		}, function errorCallback(error) {
+			console.log(error);
+			$location.path("/");
+		})
 	}
 
 	$scope.redirectTo = function(path) {

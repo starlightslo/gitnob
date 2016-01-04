@@ -3,6 +3,19 @@ body {
   padding-bottom: 40px;
 }
 
+.invalid-form {
+  border: 1px solid #f00;
+}
+.invalid-form:focus {
+  border: 1px solid #f00;
+}
+.valid-form {
+  border: 1px solid #0C0;
+}
+.valid-form:focus {
+  border: 1px solid #0C0;
+}
+
 .form-signin {
   max-width: 330px;
   padding: 15px;
@@ -28,12 +41,16 @@ body {
   z-index: 2;
 }
 .form-signin input[type="username"] {
-  border-bottom-right-radius: 0;
-  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 1;
+  border-bottom-left-radius: 1;
+  border-top-left-radius: 1;
+  border-top-right-radius: 1;
 }
 .form-signin input[type="password"] {
-  border-top-left-radius: 0;
-  border-top-right-radius: 0;
+  border-top-left-radius: 1;
+  border-top-right-radius: 1;
+  border-bottom-right-radius: 1;
+  border-bottom-left-radius: 1;
 }
 .form-signin button[type="submit"] {
   margin-top: 10px;

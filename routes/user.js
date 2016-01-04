@@ -111,6 +111,7 @@ var signup = function(req, res, next) {
 			req: userData,
 			result: result
 		});
+		result['data'] = userData;
 		res.json(result);
 		res.end();
 		return;

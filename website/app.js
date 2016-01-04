@@ -58,6 +58,16 @@ myApp.config(function($routeProvider) {
 			}
 		}
 	})
+	.when('/sshkey/create', {
+		controller: 'MainController',
+		templateUrl: 'views/create_sshkey.html',
+		resolve: {
+			data: function (ViewService, UserService) {
+				UserService.getUser();
+				return ViewService.setView(4);
+			}
+		}
+	})
 	.when('/settings', {
 		controller: 'MainController',
 		templateUrl: 'views/settings.html',

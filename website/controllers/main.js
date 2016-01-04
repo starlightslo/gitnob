@@ -1,6 +1,6 @@
 var myApp = angular.module('myApp');
 
-myApp.controller('MainController', function($rootScope, $scope, $http, $location, $routeParams, UserService) {
+myApp.controller('MainController', function($rootScope, $scope, $http, $location, $routeParams, $timeout, UserService) {
 	$scope.errorMessage = '';
 
 	$scope.isLogin = function() {
@@ -67,6 +67,48 @@ myApp.controller('MainController', function($rootScope, $scope, $http, $location
 					}
 				}
 			}
+		}, function errorCallback(error) {
+			console.log(error);
+			$location.path("/");
+		});
+	}
+
+	$scope.createSshKey = function() {
+		var data = {
+			sshKey: $scope.sshKey,
+			keyName: $scope.keyName
+		}
+		$http({
+			method: 'PUT',
+			url: '/api/user/ssh_key',
+			data: data
+		}).then(function successCallback(response) {
+			console.log(response);
+			if (response.status == 200) {
+				if (response.data.code == 200) {
+					$location.path("/sshkey");
+				} else {
+					$rootScope.$broadcast('errorIn', response.data.result);
+				}
+			}
+
+			$scope.sshKey = '';
+			$scope.keyName = '';
+		}, function errorCallback(error) {
+			console.log(error);
+			$location.path("/");
+		});
+	}
+
+	$scope.deleteSshKey = function(sshKeyName) {
+		$http.delete('/api/user/ssh_key/' + sshKeyName)
+		.then(function successCallback(response) {
+			console.log(response);
+			if (response.status == 200) {
+				if (response.data.code == 200) {
+					UserService.setUserData(response.data.data);
+				}
+			}			
 		}, function errorCallback(error) {
 			console.log(error);
 			$location.path("/");
@@ -155,6 +197,20 @@ myApp.controller('MainController', function($rootScope, $scope, $http, $location
 		console.log(path);
 		$location.path(path);
 	}
+
+	// Receiver
+	$scope.$on('errorIn', function(event, message){
+		$timeout(function(){
+			$scope.$apply(function(){
+				$scope.errorMessage = message;
+			});
+		});
+	});
+
+	// Subscribes
+	UserService.subscribeUserChange($scope, function changeUser() {
+		$scope.sshKeyList = UserService.getSshKeys();
+	});
 
 	// Inner functions
 	var getCollaborators = function(index) {

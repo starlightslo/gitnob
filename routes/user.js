@@ -321,7 +321,6 @@ var deleteSshKey = function(req, res, next) {
 			action: 'Delete SSH Key',
 			req: {
 				userData: userData,
-				sshKey: sshKey,
 				keyName: keyName
 			},
 			result: result

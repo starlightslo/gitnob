@@ -24,8 +24,12 @@ myApp.controller('MainController', function($rootScope, $scope, $http, $location
 			if (response.status == 200) {
 				if (response.data.code == 200) {
 					$location.path("/repository");
+				} else {
+					$rootScope.$broadcast('errorIn', response.data.result);
 				}
 			}
+
+			$scope.repositoryName = '';
 		}, function errorCallback(error) {
 			console.log(error);
 			$location.path("/");

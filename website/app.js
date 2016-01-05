@@ -146,11 +146,73 @@ myApp.directive('ngCheckSignupData', [
 						// Check is the password matched?
 						if (scope.errorMessage.length == 0) {
 							if ($(firstPassword).val() !== $(checkPassword).val()) {
-								if (currentComponent == checkPassword) scope.errorMessage = 'The password did not match.';
+								scope.errorMessage = 'The password did not match.';
 								scope.checkPasswordClass = 'invalid-form';
 							} else {
-								if (currentComponent == checkPassword) scope.errorMessage = '';
+								scope.errorMessage = '';
 								scope.isNotMatch = false;
+							}
+						}
+					});
+				});
+			}
+		};
+	}])
+myApp.directive('ngCheckSshData', [
+	function(){
+		return {
+			link: function (scope, elem, attrs, ctrl) {
+				var keyName = '#inputKeyName';
+				var sshKey = '#inputSshKey';
+				elem.on('keyup', function () {
+					scope.$apply(function () {
+						var currentComponent = '#' + attrs.ngCheckSshData;
+
+						scope.errorMessage = '';
+						scope.isOK = false;
+						scope.keyNameClass = 'valid-form';
+						scope.sshKeyClass = 'valid-form';
+						if($(keyName).val().length > 0) {
+							// Check special characters
+							var regularExpression = /^[a-zA-Z0-9_-]{1,16}$/;
+							if(!regularExpression.test($(keyName).val())) {
+								if (currentComponent == keyName) scope.errorMessage = 'Key name can not contain special character.';
+								scope.keyNameClass = 'invalid-form';
+							}
+						}
+
+						var sshRegularExpression = /ssh-rsa AAAA[0-9A-Za-z+/]+[=]{0,3} ([^@]+@[^@]+)/;
+						if(!sshRegularExpression.test($(sshKey).val())) {
+							if (currentComponent == sshKey) scope.errorMessage = 'SSH key format error.';
+							scope.sshKeyClass = 'invalid-form';
+						} else {
+							if($(keyName).val().length > 0 && scope.errorMessage.length == 0) {
+								scope.isOK = true;
+							}
+						}
+					});
+				});
+			}
+		};
+	}])
+myApp.directive('ngCheckNormalData', [
+	function(){
+		return {
+			link: function (scope, elem, attrs, ctrl) {
+				var data = '#' + attrs.ngCheckNormalData;
+				elem.on('keyup', function () {
+					scope.$apply(function () {
+						scope.errorMessage = '';
+						scope.isOK = false;
+						scope.dataClass = 'valid-form';
+						if($(data).val().length > 0) {
+							// Check special characters
+							var regularExpression = /^[a-zA-Z0-9_-]{1,16}$/;
+							if(!regularExpression.test($(data).val())) {
+								scope.errorMessage = 'Should not contain special character.';
+								scope.dataClass = 'invalid-form';
+							} else {
+								scope.isOK = true;
 							}
 						}
 					});

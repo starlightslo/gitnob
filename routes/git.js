@@ -29,9 +29,10 @@ var create = function(req, res, next) {
 				userData: userData,
 				repositoryName: repositoryName
 			},
-			error: 'There have a repository with same name.'
+			error: GitModule.GIT_INIT_WITH_SAME_NAME.result
 		});
-		res.status(500).send('There have a repository with same name.');
+		res.json(GitModule.GIT_INIT_WITH_SAME_NAME);
+		res.end();
 		return;
 	}
 

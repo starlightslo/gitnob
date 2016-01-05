@@ -105,6 +105,13 @@ var User = function(db, dbType) {
 					var userList = data.userList;
 					for (var i in userList) {
 						if (userList[i].username == username) {
+							// processing the length of ssh key
+							for (var j in userList[i].sshKeyList) {
+								if (userList[i].sshKeyList[j].key.length > 64) {
+									userList[i].sshKeyList[j].key = userList[i].sshKeyList[j].key.substring(0,64);
+								}
+							}
+
 							deferred.resolve({existing: true, data: userList[i]});
 							break;
 						}
@@ -151,12 +158,20 @@ var User = function(db, dbType) {
 				// The result of user
 				.then(function(result) {
 					if (result.existing) {
-						delete result.data.password;
+						userData = result.data;
+
+						delete userData.password;
+						// processing the length of ssh key
+						for (var i in userData.sshKeyList) {
+							if (userData.sshKeyList[i].key.length > 64) {
+								userData.sshKeyList[i].key = userData.sshKeyList[i].key.substring(0,64);
+							}
+						}
 
 						return deferred.resolve({
 							code: USER_OK.code,
 							result: USER_OK.result,
-							data: result.data
+							data: userData
 						});
 					} else {
 						// User not found
@@ -199,12 +214,20 @@ var User = function(db, dbType) {
 				// The result of user
 				.then(function(result) {
 					if (result.existing) {
-						delete result.data.password;
+						userData = result.data;
+
+						delete userData.password;
+						// processing the length of ssh key
+						for (var i in userData.sshKeyList) {
+							if (userData.sshKeyList[i].key.length > 64) {
+								userData.sshKeyList[i].key = userData.sshKeyList[i].key.substring(0,64);
+							}
+						}
 
 						return deferred.resolve({
 							code: USER_OK.code,
 							result: USER_OK.result,
-							data: result.data
+							data: userData
 						});
 					} else {
 						// User not found

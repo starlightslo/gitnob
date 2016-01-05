@@ -8,6 +8,7 @@ var UserModule = require('./user');
 // Response status
 var GIT_OK = {code: 200, result: 'OK'};
 var GIT_NO_PERMISSION = {code: 2000, result: 'No permission.'};
+var GIT_INIT_WITH_SAME_NAME = {code: 2001, result: 'There have a repository with same name.'};
 
 var init = function(username, repositoryPath, repositoryName, db, dbType) {
 	var deferred = Promise.defer();
@@ -242,5 +243,9 @@ module.exports = {
 	open: open,
 	addCollaborator: addCollaborator,
 	deleteCollaborator: deleteCollaborator,
-	listCollaborator: listCollaborator
+	listCollaborator: listCollaborator,
+
+	GIT_OK,
+	GIT_NO_PERMISSION,
+	GIT_INIT_WITH_SAME_NAME
 }

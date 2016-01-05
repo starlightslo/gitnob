@@ -50,6 +50,13 @@ var isLogin = function(req, res, next) {
 						res.end();
 						return;
 					}
+
+					// processing the length of ssh key
+					for (var i in this.userData.sshKeyList) {
+						if (this.userData.sshKeyList[i].key.length > 64) {
+							this.userData.sshKeyList[i].key = this.userData.sshKeyList[i].key.substring(0,64);
+						}
+					}
 					
 					next();
 				}, function(err) {

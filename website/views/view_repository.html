@@ -1,0 +1,29 @@
+<div ng-controller="MainController" ng-init="getRepository();">
+	<div ng-if="isEmptyRepository();">
+		This is an empty repository.
+	</div>
+	<div ng-if="!isEmptyRepository();">
+		<h2>Now branch: {{getCurrentBranch()}}</h2>
+
+		<h2>Branchs:</h2>
+		<ul>
+			<li ng-repeat="branch in getBranchs()">
+				<a href="#/repository/{{getCurrentRepositoryName()}}/{{branch}}">{{branch}}</a>
+			</li>
+		</ul>
+
+		<h2>Commits:</h2>
+		<ul>
+			<li ng-repeat="commit in getCommits()">
+				{{commit.date}} >>> {{commit.id}} - {{commit.author}}
+			</li>
+		</ul>
+
+		<h2>Tags:</h2>
+		<ul>
+			<li ng-repeat="tag in getTags()">
+				{{tag}}
+			</li>
+		</ul>
+	</div>
+</div>

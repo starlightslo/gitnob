@@ -1,6 +1,6 @@
 var myApp = angular.module('myApp');
 
-myApp.controller('MainController', function($rootScope, $scope, $http, $location, $routeParams, $timeout, UserService) {
+myApp.controller('MainController', function($rootScope, $scope, $http, $location, $routeParams, $timeout, UserService, GitService) {
 	$scope.errorMessage = '';
 
 	$scope.isLogin = function() {
@@ -75,6 +75,61 @@ myApp.controller('MainController', function($rootScope, $scope, $http, $location
 			console.log(error);
 			$location.path("/");
 		});
+	}
+
+	$scope.getRepository = function() {
+		console.log($routeParams.repositoryName);
+		console.log($routeParams.ref);
+		console.log($routeParams.head);
+		console.log($routeParams.branch);
+		var repositoryName = $routeParams.repositoryName;
+		var currentBranch = "";
+		var url = '/api/git/repository/' + repositoryName;
+		if ($routeParams.ref && $routeParams.head && $routeParams.branch) {
+			currentBranch = $routeParams.ref + '/' + $routeParams.head + '/' + $routeParams.branch;
+			url = url + '/' + currentBranch;
+		}
+		$http({
+			method: 'GET',
+			url: url
+		}).then(function successCallback(response) {
+			console.log(response);
+			if (response.status == 200) {
+				if (response.data.code == 200) {
+					GitService.setGitData(repositoryName, response.data.data);
+					if (currentBranch.length > 0) {
+						GitService.setCurrentBranch(currentBranch);
+					}
+				}
+			}
+		}, function errorCallback(error) {
+			console.log(error);
+			$location.path("/");
+		});
+	}
+
+	$scope.isEmptyRepository = function() {
+		return GitService.isEmptyRepository();
+	}
+
+	$scope.getCurrentRepositoryName = function() {
+		return GitService.getRepository();
+	}
+
+	$scope.getBranchs = function() {
+		return GitService.getBranchs();
+	}
+
+	$scope.getCommits = function() {
+		return GitService.getCommits();
+	}
+
+	$scope.getTags = function() {
+		return GitService.getTags();
+	}
+
+	$scope.getCurrentBranch = function() {
+		return GitService.getCurrentBranch();
 	}
 
 	$scope.createSshKey = function() {

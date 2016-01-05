@@ -48,6 +48,26 @@ myApp.config(function($routeProvider) {
 			}
 		}
 	})
+	.when('/repository/:repositoryName', {
+		controller: 'MainController',
+		templateUrl: 'views/view_repository.html',
+		resolve: {
+			data: function (ViewService, UserService) {
+				UserService.getUser();
+				return ViewService.setView(3);
+			}
+		}
+	})
+	.when('/repository/:repositoryName/:ref/:head/:branch', {
+		controller: 'MainController',
+		templateUrl: 'views/view_repository.html',
+		resolve: {
+			data: function (ViewService, UserService) {
+				UserService.getUser();
+				return ViewService.setView(3);
+			}
+		}
+	})
 	.when('/sshkey', {
 		controller: 'MainController',
 		templateUrl: 'views/sshkey.html',

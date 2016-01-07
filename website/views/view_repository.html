@@ -1,29 +1,59 @@
 <div ng-controller="MainController" ng-init="getRepository();">
 	<div ng-if="isEmptyRepository();">
-		This is an empty repository.
+		<h2>{{getCurrentRepositoryName()}}</h2>
+		<hr />
+		<h4><strong>Push an existing repository from the command line</strong></h4>
+		<pre>git remote add origin git@{{getDomain()}}:/{{getCurrentRepositoryName()}}
+git push -u origin master</pre>
 	</div>
 	<div ng-if="!isEmptyRepository();">
-		<h2>Now branch: {{getCurrentBranch()}}</h2>
-
-		<h2>Branchs:</h2>
-		<ul>
-			<li ng-repeat="branch in getBranchs()">
-				<a href="#/repository/{{getCurrentRepositoryName()}}/{{branch}}">{{branch}}</a>
-			</li>
-		</ul>
-
-		<h2>Commits:</h2>
-		<ul>
-			<li ng-repeat="commit in getCommits()">
-				{{commit.date}} >>> {{commit.id}} - {{commit.author}}
-			</li>
-		</ul>
-
-		<h2>Tags:</h2>
-		<ul>
-			<li ng-repeat="tag in getTags()">
-				{{tag}}
-			</li>
-		</ul>
+		<h2>{{getCurrentRepositoryName()}}</h2>
+		<div class="content table-responsive">
+			<table class="table table-bordered">
+				<tbody>
+					<tr style="text-align: center;">
+						<td class="col-sm-3 btn-default btn-sm">
+							<a href>{{getCommitNum()}} commits</a>
+						</td>
+						<td class="col-sm-3 btn-default btn-sm">
+							<a href>{{getBranchNum()}} branches</a>
+						</td>
+						<td class="col-sm-3 btn-default btn-sm">
+							<a href>{{getTagNum()}} releases</a>
+						</td>
+						<td class="col-sm-3 btn-default btn-sm">
+							<a href>{{getCollaboratorNum()}} contributor</a>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		<div class="dropdown">
+			<button class="btn btn-default btn-sm dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+				Branch: <strong>{{getCurrentBranch()}}</strong>
+				<span class="caret"></span>
+			</button>
+			<ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+				<li ng-repeat="branch in getBranchs()">
+					<a href="#/repository/{{getCurrentRepositoryName()}}/{{branch}}">{{branch}}</a>
+				</li>
+			</ul>
+		</div>
+		<div class="content table-responsive">
+			<table class="table table-hover">
+				<tbody>
+					<tr ng-repeat="commit in getCommits()" ng-init="showMoreInfo=[]">
+						<td class="col-sm-10">
+							<strong>{{commit.summary}}</strong><a href ng-show="commit.hasMoreInfo" ng-click="showMoreInfo[$index] ? showMoreInfo[$index]=false : showMoreInfo[$index]=true" class="more-info">...</a><br />
+							<span class="sub-content"><a href="mailto:{{commit.authorEmail}}">{{commit.author}}</a> committed at {{commit.date}}</span><br />
+							<pre class="sub-content" ng-show="showMoreInfo[{{$index}}]" ng-init="showMoreInfo.push(false)" style="white-space: pre;">{{commit.message}}</pre>
+						</td>
+						<td class="col-sm-2" style="text-align: center;">
+							<button type="button" class="btn btn-sm btn-info">{{commit.id.substring(0,7)}}</button>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
 	</div>
 </div>

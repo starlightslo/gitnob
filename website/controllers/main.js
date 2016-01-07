@@ -132,6 +132,22 @@ myApp.controller('MainController', function($rootScope, $scope, $http, $location
 		return GitService.getCurrentBranch();
 	}
 
+	$scope.getCommitNum = function() {
+		return GitService.getCommitNum();
+	}
+
+	$scope.getBranchNum = function() {
+		return GitService.getBranchNum();
+	}
+
+	$scope.getTagNum = function() {
+		return GitService.getTagNum();
+	}
+
+	$scope.getCollaboratorNum = function() {
+		return GitService.getCollaboratorNum();
+	}
+
 	$scope.createSshKey = function() {
 		var data = {
 			sshKey: $scope.sshKey,
@@ -255,6 +271,10 @@ myApp.controller('MainController', function($rootScope, $scope, $http, $location
 	$scope.redirectTo = function(path) {
 		console.log(path);
 		$location.path(path);
+	}
+
+	$scope.getDomain = function() {
+		return $location.host()
 	}
 
 	// Receiver

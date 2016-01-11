@@ -60,7 +60,6 @@ myApp.controller('MainController', function($rootScope, $scope, $http, $location
 			console.log(response);
 			if (response.status == 200) {
 				if (response.data.code == 200) {
-					console.log(response.data.data);
 					var repositories = response.data.data;
 					for (var i in repositories) {
 						$scope.repositoryList.push({
@@ -278,6 +277,37 @@ myApp.controller('MainController', function($rootScope, $scope, $http, $location
 			$scope.username = '';
 			$scope.password = '';
 			$scope.checkPassword = '';
+		}, function errorCallback(error) {
+			console.log(error);
+			$location.path("/");
+		})
+	}
+
+	$scope.updatePassword = function() {
+		var data = {
+			password: $scope.oldPassword,
+			newPassword: $scope.newPassword
+		}
+		$http({
+			method: 'POST',
+			url: '/api/user/change_password',
+			data: data
+		}).then(function successCallback(response) {
+			console.log(response);
+			if (response.status == 200) {
+				if (response.data.code == 200) {
+					$location.path("/repository");
+				} else {
+					$scope.errorMessage = response.data.result;
+					$scope.isNotMatch = true;
+					$scope.newPasswordClass = 'invalid-form';
+					$scope.confirmPasswordClass = 'invalid-form';
+				}
+			}
+
+			$scope.oldPassword = '';
+			$scope.newPassword = '';
+			$scope.confirmPassword = '';
 		}, function errorCallback(error) {
 			console.log(error);
 			$location.path("/");

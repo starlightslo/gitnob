@@ -1,5 +1,5 @@
 <div class="form" ng-controller="MainController">
-	<form ng-submit="createSshKey();" class="form-sshkey" ng-show="isLogin();">
+	<form ng-submit="createSshKey();" class="form form-sshkey" ng-show="isLogin();">
 		<h2 class="form-signin-heading">Add an SSH Key</h2>
 		<label for="inputKeyName" class="sr-only">Key Name</label>
 		<input type="text" ng-model="keyName" ng-check-ssh-data="inputKeyName" ng-class="keyNameClass" id="inputKeyName" class="form-control" placeholder="Key name" maxlength="16" required autofocus>

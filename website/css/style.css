@@ -15,25 +15,33 @@ body {
 .valid-form:focus {
   border: 1px solid #0C0;
 }
-
+.form {
+  text-align: center;
+  padding: 10px;
+  margin: 0 auto;
+}
+.form-left {
+  text-align: left;
+}
 .form-sshkey{
   max-width: 660px;
-  padding: 15px;
-  margin: 0 auto;
 }
 .form-signin {
   max-width: 330px;
-  padding: 15px;
-  margin: 0 auto;
 }
-.form-signin .form-signin-heading,
-.form-signin .checkbox {
+.form > .alert {
+  text-align: center;
+  width: 50%;
+  display: inline-block;
+}
+.form .form-signin-heading,
+.form .checkbox {
   margin-bottom: 10px;
 }
-.form-signin .checkbox {
+.form .checkbox {
   font-weight: normal;
 }
-.form-signin .form-control {
+.form .form-control {
   position: relative;
   height: auto;
   -webkit-box-sizing: border-box;
@@ -42,23 +50,25 @@ body {
   padding: 10px;
   font-size: 16px;
 }
-.form-signin .form-control:focus {
+.form .form-control:focus {
   z-index: 2;
 }
-.form-signin input[type="username"] {
+.form input[type="username"] {
   border-bottom-right-radius: 1;
   border-bottom-left-radius: 1;
   border-top-left-radius: 1;
   border-top-right-radius: 1;
 }
-.form-signin input[type="password"] {
+.form input[type="password"] {
   border-top-left-radius: 1;
   border-top-right-radius: 1;
   border-bottom-right-radius: 1;
   border-bottom-left-radius: 1;
 }
-.form-signin button[type="submit"] {
+.form button[type="submit"] {
   margin-top: 10px;
-  border-top-left-radius: 0;
-  border-top-right-radius: 0;
+  border-top-left-radius: 1;
+  border-top-right-radius: 1;
+  border-bottom-right-radius: 1;
+  border-bottom-left-radius: 1;
 }

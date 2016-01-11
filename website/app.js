@@ -215,6 +215,55 @@ myApp.directive('ngCheckSshData', [
 			}
 		};
 	}])
+myApp.directive('ngCheckUpdatePassword', [
+	function(){
+		return {
+			link: function (scope, elem, attrs, ctrl) {
+				var newPassword = '#newPassword';
+				var confirmPassword = '#confirmPassword';
+				elem.on('keyup', function () {
+					scope.$apply(function () {
+						var currentComponent = '#' + attrs.ngCheckUpdatePassword;
+						var minNumOfChars = 6;
+
+						scope.errorMessage = '';
+						scope.isNotMatch = true;
+						scope.newPasswordClass = 'valid-form';
+						scope.confirmPasswordClass = 'valid-form';
+
+						// Check length
+						if ($(newPassword).val().length < minNumOfChars) {
+							if (currentComponent == newPassword) scope.errorMessage = 'The password must be at least 6 characters.';
+							scope.newPasswordClass = 'invalid-form';
+						} else {
+							if (currentComponent == newPassword) scope.errorMessage = '';
+						}
+
+						// Check special characters
+						var regularExpression = /^[a-zA-Z0-9!@#$%^&*]{6,16}$/;
+						if(!regularExpression.test($(newPassword).val())) {
+							if (currentComponent == newPassword && scope.errorMessage.length == 0) scope.errorMessage = 'The password should not contain some special character.';
+							scope.newPasswordClass = 'invalid-form';
+						} else {
+							if (currentComponent == newPassword) scope.errorMessage = '';
+						}
+
+						// Check is the password matched?
+						if (scope.errorMessage.length == 0) {
+							if ($(newPassword).val() !== $(confirmPassword).val()) {
+								scope.errorMessage = 'The password did not match.';
+								scope.confirmPasswordClass = 'invalid-form';
+							} else {
+								scope.errorMessage = '';
+								scope.isNotMatch = false;
+							}
+						}
+						console.log(scope.errorMessage);
+					});
+				});
+			}
+		};
+	}])
 myApp.directive('ngCheckNormalData', [
 	function(){
 		return {

@@ -106,6 +106,22 @@ myApp.controller('MainController', function($rootScope, $scope, $http, $location
 			console.log(error);
 			$location.path("/");
 		});
+
+		// Get collaborator
+		$http({
+			method: 'GET',
+			url: '/api/git/repository/' + repositoryName + '/collaborator'
+		}).then(function successCallback(response) {
+			console.log(response);
+			if (response.status == 200) {
+				if (response.data.code == 200) {
+					GitService.setCollaboratorList(response.data.data)
+				}
+			}
+		}, function errorCallback(error) {
+			console.log(error);
+			$location.path("/");
+		});
 	}
 
 	$scope.isEmptyRepository = function() {
@@ -301,7 +317,6 @@ myApp.controller('MainController', function($rootScope, $scope, $http, $location
 			console.log(response);
 			if (response.status == 200) {
 				if (response.data.code == 200) {
-					console.log();
 					$scope.repositoryList[index].collaboratorList = response.data.data;
 				}
 			}

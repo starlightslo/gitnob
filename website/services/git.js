@@ -7,7 +7,8 @@ myApp.factory('GitService', function($rootScope, $http) {
 		defaultBranch: "",
 		branchList: [],
 		tagList: [],
-		commitList: []
+		commitList: [],
+		collaboratorList: []
 	};
 	return {
 		getRepository: function() {
@@ -15,7 +16,10 @@ myApp.factory('GitService', function($rootScope, $http) {
 		},
 		setGitData: function(name, data) {
 			repositoryName = name;
-			gitData = data;
+			gitData.defaultBranch = data.defaultBranch;
+			gitData.branchList = data.branchList;
+			gitData.tagList = data.tagList;
+			gitData.commitList = data.commitList;
 			currentBranch = gitData.defaultBranch;
 
 			// Process commits
@@ -36,6 +40,9 @@ myApp.factory('GitService', function($rootScope, $http) {
 					}
 				}
 			}
+		},
+		setCollaboratorList: function(collaboratorList) {
+			gitData.collaboratorList = collaboratorList
 		},
 		setCurrentBranch: function(branch) {
 			currentBranch = branch;
@@ -65,7 +72,7 @@ myApp.factory('GitService', function($rootScope, $http) {
 			return gitData.tagList.length;
 		},
 		getCollaboratorNum: function() {
-			return 0;
+			return gitData.collaboratorList.length;
 		},
 		isEmptyRepository: function() {
 			if (gitData.defaultBranch.length == 0) {

@@ -1,24 +1,26 @@
-var bcrypt = require('bcryptjs');
-var jwt = require('jsonwebtoken');
-var TOKEN_EXPRIED = 60 * 60 * 30;
+'use strict'
 
-var UserModule = require('../modules/user');
+var bcrypt = require('bcryptjs')
+var jwt = require('jsonwebtoken')
+var TOKEN_EXPRIED = 60 * 60 * 30
+
+var UserModule = require('../modules/user')
 
 var user = function(req, res, next) {
+	var userData = req.session.userData
 	req.log.info({
 		catalog: 'User',
 		action: 'User',
 		req: userData,
 		result: userData
-	});
-	console.log(userData.username);
-	res.json(userData);
-	res.end();
-	return;
+	})
+	res.json(userData)
+	res.end()
+	return
 }
 
 var isLogin = function(req, res, next) {
-	var token = req.session.token;
+	var token = req.session.token
 	if (token) {
 		// verifies secret and checks exp
 		jwt.verify(token, app.get('superSecret'), function(err, userData) {
@@ -28,64 +30,96 @@ var isLogin = function(req, res, next) {
 					action: 'isLogin',
 					req: token,
 					result: err
-				});
-				res.status(403).send('Access Denied');
-				res.end();
-				return;
+				})
+				res.status(403).send('Access Denied')
+				res.end()
+				return
 			} else {
 				// Update userData from database
-				var User = UserModule.init(db, app.settings.config.database.type);
+				var User = UserModule.init(db, app.settings.config.database.type)
 				User.isUserExisting(userData.username).then(function(result) {
-				this.userData = result.data;
+					req.session.userData = result.data
 					req.log.info({
 						catalog: 'User',
 						action: 'isLogin',
 						req: token,
-						result: this.userData
-					});
+						result: req.session.userData
+					})
 
 					// Should denied the user type with < 0
-					if (this.userData.type < 0) {
-						res.status(403).send('Access Denied');
-						res.end();
-						return;
+					if (req.session.userData.type < 0) {
+						res.status(403).send('Access Denied')
+						res.end()
+						return
 					}
 					
-					next();
+					next()
 				}, function(err) {
 					req.log.info({
 						catalog: 'User',
 						action: 'isLogin',
 						req: token,
 						result: UserModule.USER_NOT_FOUND
-					});
-					res.status(403).send(UserModule.USER_NOT_FOUND.result);
-					res.end();
-					return;
-				});
+					})
+					res.status(403).send(UserModule.USER_NOT_FOUND.result)
+					res.end()
+					return
+				})
 			}
-		});
+		})
 	} else {
 		req.log.info({
 			catalog: 'User',
 			action: 'isLogin',
 			req: token,
 			result: 'No user token.'
-		});
-		res.status(403).send('Access Denied');
-		res.end();
-		return;
+		})
+		res.status(403).send('Access Denied')
+		res.end()
+		return
 	}
 }
 
 var signup = function(req, res, next) {
-	var username = req.body.username;
-	var password = req.body.password;
+	var username = req.body.username
+	var password = req.body.password
 
 	// Check value of input
-	/* =======================
-	          TODO
-	======================= */
+	var err = ''
+	if (!username || !password) {
+		err = 'The input data is empty.'
+	}
+
+	// Check length
+	var minNumOfChars = 6
+	if (err.length == 0 && username.length < minNumOfChars) {
+		err = 'The username must be at least 6 characters.'
+	}
+	if (err.length == 0 && password.length < minNumOfChars) {
+		err = 'The password must be at least 6 characters.'
+	}
+
+	// Check special characters
+	var regularExpression = /^[a-zA-Z0-9!@#$%^&*]{6,16}$/
+	if(err.length == 0 && !regularExpression.test(password)) {
+		err = 'The password should not contain some special character.'
+	}
+
+	// Check error
+	if (err.length > 0) {
+		req.log.error({
+			catalog: 'User',
+			action: 'Signup',
+			req: {
+				username: username,
+				password: password
+			},
+			error: err
+		})
+		res.status(400).send(err)
+		res.end()
+		return
+	}
 
 	var userData = {
 		username: username,
@@ -95,108 +129,166 @@ var signup = function(req, res, next) {
 		collaborateRepositoryList: [],
 		type: 0
 	}
-	var User = UserModule.init(db, app.settings.config.database.type);
+	var User = UserModule.init(db, app.settings.config.database.type)
 	User.signup(userData).then(function(result) {
-		delete userData.password;
+		delete userData.password
 
 		// Create user token
 		var token = jwt.sign(userData, app.get('superSecret'), {
 			expiresIn: TOKEN_EXPRIED
-		});
-		req.session.token = token;
+		})
+		req.session.token = token
 
 		req.log.info({
 			catalog: 'User',
 			action: 'Signup',
 			req: userData,
 			result: result
-		});
-		res.json(result);
-		res.end();
-		return;
+		})
+		res.json(result)
+		res.end()
+		return
 	}, function(err) {
 		req.log.error({
 			catalog: 'User',
 			action: 'Signup',
 			req: userData,
 			error: err
-		});
-		res.status(500).send('Server Error: ' + err);
-		return;
-	});
+		})
+		res.status(500).send('Server Error: ' + err)
+		res.end()
+		return
+	})
 }
 
 var signin = function(req, res, next) {
-	var username = req.body.username;
-	var password = req.body.password;
+	var username = req.body.username
+	var password = req.body.password
 
 	// Check value of input
-	/* =======================
-	          TODO
-	======================= */
+	var err = ''
+	if (!username || !password) {
+		err = 'The input data is empty.'
+	}
+
+	// Check special characters
+	var regularExpression = /^[a-zA-Z0-9!@#$%^&*]{6,16}$/
+	if(err.length == 0 && !regularExpression.test(password)) {
+		err = 'The password should not contain some special character.'
+	}
+
+	// Check error
+	if (err.length > 0) {
+		req.log.error({
+			catalog: 'User',
+			action: 'Signin',
+			req: {
+				username: username,
+				password: password
+			},
+			error: err
+		})
+		res.status(400).send(err)
+		res.end()
+		return
+	}
 
 	var userData = {
 		username: username,
 		password: password
 	}
-	var User = UserModule.init(db, app.settings.config.database.type);
+	var User = UserModule.init(db, app.settings.config.database.type)
 	User.signin(userData).then(function(result) {
 		if (result.code == UserModule.USER_OK.code) {
-			userData = result.data;
-			delete userData.password;
+			userData = result.data
+			delete userData.password
 
 			// Create user token
 			var token = jwt.sign(userData, app.get('superSecret'), {
 				expiresIn: TOKEN_EXPRIED
-			});
-			req.session.token = token;
+			})
+			req.session.token = token
 
 			req.log.info({
 				catalog: 'User',
 				action: 'Signin',
 				req: userData,
 				result: result
-			});
+			})
 		} else {
-			req.session.token = null;
+			req.session.token = null
 
 			req.log.info({
 				catalog: 'User',
 				action: 'Signin',
 				req: userData,
 				result: result
-			});
+			})
 		}
-		res.json(result);
-		res.end();
-		return;
+		res.json(result)
+		res.end()
+		return
 	}, function(err) {
 		req.log.error({
 			catalog: 'User',
 			action: 'Signin',
 			req: userData,
 			error: err
-		});
-		res.status(500).send('Server Error: ' + err);
-		return;
-	});
+		})
+		res.status(500).send('Server Error: ' + err)
+		res.end()
+		return
+	})
 }
 
 var changePassword = function(req, res, next) {
-	var password = req.body.password;
-	var newPassword = req.body.newPassword;
+	var userData = req.session.userData
+	var password = req.body.password
+	var newPassword = req.body.newPassword
 
 	// Check value of input
-	/* =======================
-	          TODO
-	======================= */
+	var err = ''
+	if (!password || !newPassword) {
+		err = 'The input data is empty.'
+	}
+
+	// Check length
+	var minNumOfChars = 6
+	if (err.length == 0 && newPassword.length < minNumOfChars) {
+		err = 'The password must be at least 6 characters.'
+	}
+
+	// Check special characters
+	var regularExpression = /^[a-zA-Z0-9!@#$%^&*]{6,16}$/
+	if(err.length == 0 && !regularExpression.test(password)) {
+		err = 'The password should not contain some special character.'
+	}
+	if(err.length == 0 && !regularExpression.test(newPassword)) {
+		err = 'The password should not contain some special character.'
+	}
+
+	// Check error
+	if (err.length > 0) {
+		req.log.error({
+			catalog: 'User',
+			action: 'Change Password',
+			req: {
+				password: password,
+				newPassword: newPassword
+			},
+			error: err
+		})
+		res.status(400).send(err)
+		res.end()
+		return
+	}
 
 	var passwordData = {
 		username: userData.username,
 		password: password,
 		newPassword: bcrypt.hashSync(newPassword)
 	}
-	var User = UserModule.init(db, app.settings.config.database.type);
+	var User = UserModule.init(db, app.settings.config.database.type)
 	User.changePassword(passwordData).then(function(result) {
 		req.log.info({
 			catalog: 'User',
@@ -206,10 +298,10 @@ var changePassword = function(req, res, next) {
 				passwordData: passwordData
 			},
 			result: result
-		});
-		res.json(result);
-		res.end();
-		return;
+		})
+		res.json(result)
+		res.end()
+		return
 	}, function(err) {
 		req.log.error({
 			catalog: 'User',
@@ -219,14 +311,16 @@ var changePassword = function(req, res, next) {
 				passwordData: passwordData
 			},
 			error: err
-		});
-		res.status(500).send('Server Error: ' + err);
-		return;
-	});
+		})
+		res.status(500).send('Server Error: ' + err)
+		res.end()
+		return
+	})
 }
 
 var logout = function(req, res, next) {
-	var token = req.session.token;
+	var userData = req.session.userData
+	var token = req.session.token
 	if (token) {
 		// verifies secret and checks exp
 		jwt.verify(token, app.get('superSecret'), function(err, userData) {
@@ -236,7 +330,7 @@ var logout = function(req, res, next) {
 					action: 'Logout',
 					req: token,
 					result: err
-				});
+				})
 			} else {
 				req.log.info({
 					catalog: 'User',
@@ -245,36 +339,64 @@ var logout = function(req, res, next) {
 					result: {
 						username: userData.username
 					}
-				});
+				})
 			}
-			req.session.token = null;
-			res.json(UserModule.USER_OK);
-			res.end();
-			return;
-		});
+			req.session.token = null
+			res.json(UserModule.USER_OK)
+			res.end()
+			return
+		})
 	} else {
 		req.log.info({
 			catalog: 'User',
 			action: 'Logout',
 			req: token,
 			result: 'No user token.'
-		});
-		res.json(UserModule.USER_OK);
-		res.end();
-		return;
+		})
+		res.json(UserModule.USER_OK)
+		res.end()
+		return
 	}
 }
 
 var addSshKey = function(req, res, next) {
-	var sshKey = req.body.sshKey;
-	var keyName = req.body.keyName;
+	var userData = req.session.userData
+	var sshKey = req.body.sshKey
+	var keyName = req.body.keyName
 
 	// Check value of input
-	/* =======================
-	          TODO
-	======================= */
+	var err = ''
+	if (!sshKey || !keyName) {
+		err = 'The input data is empty.'
+	}
 
-	var User = UserModule.init(db, app.settings.config.database.type);
+	// Check special characters
+	var regularExpression = /^[a-zA-Z0-9_-]{1,16}$/
+	var sshRegularExpression = /ssh-rsa AAAA[0-9A-Za-z+/]+[=]{0,3} ([^@]+@[^@]+)/
+	if(err.length == 0 && !regularExpression.test(keyName)) {
+		err = 'Key name can not contain special character.'
+	}
+	if(err.length == 0 && !sshRegularExpression.test(sshKey)) {
+		err = 'SSH key format error.'
+	}
+
+	// Check error
+	if (err.length > 0) {
+		req.log.error({
+			catalog: 'User',
+			action: 'Add SSH Key',
+			req: {
+				sshKey: sshKey,
+				keyName: keyName
+			},
+			error: err
+		})
+		res.status(400).send(err)
+		res.end()
+		return
+	}
+
+	var User = UserModule.init(db, app.settings.config.database.type)
 	User.addSshKey(userData.username, sshKey, keyName).then(function(result) {
 		req.log.info({
 			catalog: 'User',
@@ -285,10 +407,10 @@ var addSshKey = function(req, res, next) {
 				keyName: keyName
 			},
 			result: result
-		});
-		res.json(result);
-		res.end();
-		return;
+		})
+		res.json(result)
+		res.end()
+		return
 	}, function(err) {
 		req.log.error({
 			catalog: 'User',
@@ -299,21 +421,45 @@ var addSshKey = function(req, res, next) {
 				keyName: keyName
 			},
 			error: err
-		});
-		res.status(500).send('Server Error: ' + err);
-		return;
-	});
+		})
+		res.status(500).send('Server Error: ' + err)
+		res.end()
+		return
+	})
 }
 
 var deleteSshKey = function(req, res, next) {
-	var keyName = req.params.name;
+	var userData = req.session.userData
+	var keyName = req.params.name
 
 	// Check value of input
-	/* =======================
-	          TODO
-	======================= */
+	var err = ''
+	if (!keyName) {
+		err = 'The input data is empty.'
+	}
 
-	var User = UserModule.init(db, app.settings.config.database.type);
+	// Check special characters
+	var regularExpression = /^[a-zA-Z0-9_-]{1,16}$/
+	if(err.length == 0 && !regularExpression.test(keyName)) {
+		err = 'Key name can not contain special character.'
+	}
+
+	// Check error
+	if (err.length > 0) {
+		req.log.error({
+			catalog: 'User',
+			action: 'Delete SSH Key',
+			req: {
+				keyName: keyName
+			},
+			error: err
+		})
+		res.status(400).send(err)
+		res.end()
+		return
+	}
+
+	var User = UserModule.init(db, app.settings.config.database.type)
 	User.deleteSshKey(userData.username, keyName).then(function(result) {
 		req.log.info({
 			catalog: 'User',
@@ -324,10 +470,10 @@ var deleteSshKey = function(req, res, next) {
 				keyName: keyName
 			},
 			result: result
-		});
-		res.json(result);
-		res.end();
-		return;
+		})
+		res.json(result)
+		res.end()
+		return
 	}, function(err) {
 		req.log.error({
 			catalog: 'User',
@@ -338,10 +484,11 @@ var deleteSshKey = function(req, res, next) {
 				keyName: keyName
 			},
 			error: err
-		});
-		res.status(500).send('Server Error: ' + err);
-		return;
-	});
+		})
+		res.status(500).send('Server Error: ' + err)
+		res.end()
+		return
+	})
 }
 
 module.exports = {

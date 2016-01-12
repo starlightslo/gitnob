@@ -57,14 +57,18 @@ var destroy = function(username, repositoryPath, repositoryName, db, dbType) {
 		var userList = data.userList
 		for (var i in userList) {
 			if (userList[i].username == username) {
-				var index = userList[i].repositoryList.indexOf(repositoryName)
+				let index = userList[i].repositoryList.indexOf(repositoryName)
 				userList[i].repositoryList.splice(index, 1)
+			}
 
-				// Write back to database
-				return db.write(JSON.stringify(data))
+			// The collaborators also remove the repository
+			let index = userList[i].collaborateRepositoryList.indexOf(repositoryName)
+			if (index >= 0) {
+				userList[i].collaborateRepositoryList.splice(index, 1)
 			}
 		}
-		return deferred.resolve(UserModule.USER_NOT_FOUND)
+		// Write back to database
+		return db.write(JSON.stringify(data))
 	}, function(err) {
 		return deferred.reject(err)
 	})

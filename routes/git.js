@@ -38,7 +38,7 @@ var create = function(req, res, next) {
 	}
 
 	// Generating the repository path and check is the repository existing or not
-	var repositoryPath = path.join(app.settings.config.gitPath, repositoryName)
+	var repositoryPath = path.join(req.app.settings.config.gitPath, repositoryName)
 	if (fs.existsSync(repositoryPath)){
 		req.log.error({
 			catalog: 'Git',
@@ -55,7 +55,7 @@ var create = function(req, res, next) {
 	}
 
 	// Creates an empty Git repository
-	GitModule.init(userData.username, repositoryPath, repositoryName, db, app.settings.config.database.type).then(function(result) {
+	GitModule.init(userData.username, repositoryPath, repositoryName, req.db, req.app.settings.config.database.type).then(function(result) {
 		req.log.info({
 			catalog: 'Git',
 			action: 'Create',
@@ -116,7 +116,7 @@ var destroy = function(req, res, next) {
 	}
 
 	// Generating the repository path and check is the repository existing or not
-	var repositoryPath = path.join(app.settings.config.gitPath, repositoryName)
+	var repositoryPath = path.join(req.app.settings.config.gitPath, repositoryName)
 	if (!fs.existsSync(repositoryPath)){
 		req.log.error({
 			catalog: 'Git',
@@ -147,7 +147,7 @@ var destroy = function(req, res, next) {
 	}
 
 	// Creates an empty Git repository
-	GitModule.destroy(userData.username, repositoryPath, repositoryName, db, app.settings.config.database.type).then(function(result) {
+	GitModule.destroy(userData.username, repositoryPath, repositoryName, req.db, req.app.settings.config.database.type).then(function(result) {
 		req.log.info({
 			catalog: 'Git',
 			action: 'Destory',
@@ -213,7 +213,7 @@ var get = function(req, res, next) {
 	if (ref && head && branch) {
 		branch = ref + '/' + head + '/' + branch
 	}
-	var repositoryPath = path.join(app.settings.config.gitPath, repository)
+	var repositoryPath = path.join(req.app.settings.config.gitPath, repository)
 
 	// Check permission
 	if (userData.repositoryList.indexOf(repository) < 0) {
@@ -387,7 +387,7 @@ var addCollaborator = function(req, res, next) {
 		return
 	}
 
-	var repositoryPath = path.join(app.settings.config.gitPath, repository)
+	var repositoryPath = path.join(req.app.settings.config.gitPath, repository)
 
 	// Check permission
 	if (userData.repositoryList.indexOf(repository) < 0) {
@@ -407,7 +407,7 @@ var addCollaborator = function(req, res, next) {
 	}
 
 	// Check collaborator name
-	GitModule.addCollaborator(repository, collaboratorName).then(function(result) {
+	GitModule.addCollaborator(req.db, req.app.settings.config.database.type, repository, collaboratorName).then(function(result) {
 		req.log.info({
 			catalog: 'Git',
 			action: 'Add Collaborator',
@@ -443,7 +443,7 @@ var deleteCollaborator = function(req, res, next) {
 	var userData = req.session.userData
 	var repository = req.params.repository
 	var collaboratorName = req.params.collaborator
-	var repositoryPath = path.join(app.settings.config.gitPath, repository)
+	var repositoryPath = path.join(req.app.settings.config.gitPath, repository)
 
 	// Check permission
 	if (userData.repositoryList.indexOf(repository) < 0) {
@@ -463,7 +463,7 @@ var deleteCollaborator = function(req, res, next) {
 	}
 
 	// Check collaborator name
-	GitModule.deleteCollaborator(repository, collaboratorName).then(function(result) {
+	GitModule.deleteCollaborator(req.db, req.app.settings.config.database.type, repository, collaboratorName).then(function(result) {
 		req.log.info({
 			catalog: 'Git',
 			action: 'Delete Collaborator',
@@ -498,7 +498,7 @@ var deleteCollaborator = function(req, res, next) {
 var listCollaborator = function(req, res, next) {
 	var userData = req.session.userData
 	var repository = req.params.repository
-	var repositoryPath = path.join(app.settings.config.gitPath, repository)
+	var repositoryPath = path.join(req.app.settings.config.gitPath, repository)
 
 	// Check permission
 	if (userData.repositoryList.indexOf(repository) < 0) {
@@ -517,7 +517,7 @@ var listCollaborator = function(req, res, next) {
 	}
 
 	// Check collaborator name
-	GitModule.listCollaborator(repository).then(function(result) {
+	GitModule.listCollaborator(req.db, req.app.settings.config.database.type, repository).then(function(result) {
 		req.log.info({
 			catalog: 'Git',
 			action: 'List Collaborator',

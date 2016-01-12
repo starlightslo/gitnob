@@ -1,4 +1,4 @@
-var path = require('path');
+var path = require('path')
 
 module.exports = {
 	port: 8888,

@@ -1,9 +1,9 @@
-<div ng-init="getRepositories();">
+<div ng-init="getRepositories()">
 	<div class="content-title">
 		<h2 class="sub-header">Repositories</h2>
 		<div class="content-title-right">
 			<input type="text" class="form-control" placeholder="Search..." ng-model="search.name">
-			<button type="button" class="btn btn-success" style="margin-left: 10px" ng-click="redirectTo('/repository/create');">New Repository</button>
+			<button type="button" class="btn btn-success" style="margin-left: 10px" ng-click="redirectTo('/repository/create')">New Repository</button>
 		</div>
 	</div>
 	<div class="content table-responsive">
@@ -23,8 +23,8 @@
 							{{collaborator}}
 						</span>
 					</td>
-					<td style="text-align: center;">
-						<a href><span class="glyphicon glyphicon-trash" aria-hidden="true" confirmed-click="deleteRepository(repository.name);" ng-confirm-click="Are you sure want to delete {{repository.name}}?"></span></a>
+					<td style="text-align: center">
+						<a href><span class="glyphicon glyphicon-trash" aria-hidden="true" confirmed-click="deleteRepository(repository.name)" ng-confirm-click="Are you sure want to delete {{repository.name}}?"></span></a>
 					</td>
 				</tr>
 			</tbody>

@@ -1,26 +1,26 @@
-var myApp = angular.module('myApp');
+var myApp = angular.module('myApp')
 
 myApp.factory('GitService', function($rootScope, $http) {
-	var repositoryName = "";
-	var currentBranch = "";
+	var repositoryName = ""
+	var currentBranch = ""
 	var gitData = {
 		defaultBranch: "",
 		branchList: [],
 		tagList: [],
 		commitList: [],
 		collaboratorList: []
-	};
+	}
 	return {
 		getRepository: function() {
-			return repositoryName;
+			return repositoryName
 		},
 		setGitData: function(name, data) {
-			repositoryName = name;
-			gitData.defaultBranch = data.defaultBranch;
-			gitData.branchList = data.branchList;
-			gitData.tagList = data.tagList;
-			gitData.commitList = data.commitList;
-			currentBranch = gitData.defaultBranch;
+			repositoryName = name
+			gitData.defaultBranch = data.defaultBranch
+			gitData.branchList = data.branchList
+			gitData.tagList = data.tagList
+			gitData.commitList = data.commitList
+			currentBranch = gitData.defaultBranch
 
 			// Process commits
 			for (var i in gitData.commitList) {
@@ -33,10 +33,10 @@ myApp.factory('GitService', function($rootScope, $http) {
 				// Separate the author and email
 				gitData.commitList[i]['authorEmail'] = ''
 				if (gitData.commitList[i].author.indexOf('>') == gitData.commitList[i].author.length-1) {
-					var startIndex = gitData.commitList[i].author.indexOf(' <');
+					var startIndex = gitData.commitList[i].author.indexOf(' <')
 					if (startIndex > 0) {
-						gitData.commitList[i]['authorEmail'] = gitData.commitList[i].author.substring(startIndex+2, gitData.commitList[i].author.length-1);
-						gitData.commitList[i].author = gitData.commitList[i].author.substring(0, startIndex);
+						gitData.commitList[i]['authorEmail'] = gitData.commitList[i].author.substring(startIndex+2, gitData.commitList[i].author.length-1)
+						gitData.commitList[i].author = gitData.commitList[i].author.substring(0, startIndex)
 					}
 				}
 			}
@@ -45,41 +45,41 @@ myApp.factory('GitService', function($rootScope, $http) {
 			gitData.collaboratorList = collaboratorList
 		},
 		setCurrentBranch: function(branch) {
-			currentBranch = branch;
+			currentBranch = branch
 		},
 		getDefaultBranch: function() {
-			return gitData.defaultBranch;
+			return gitData.defaultBranch
 		},
 		getBranchs: function() {
-			return gitData.branchList;
+			return gitData.branchList
 		},
 		getTags: function() {
-			return gitData.tagList;
+			return gitData.tagList
 		},
 		getCommits: function() {
-			return gitData.commitList;
+			return gitData.commitList
 		},
 		getCurrentBranch: function() {
-			return currentBranch;
+			return currentBranch
 		},
 		getCommitNum: function() {
-			return gitData.commitList.length;
+			return gitData.commitList.length
 		},
 		getBranchNum: function() {
-			return gitData.branchList.length;
+			return gitData.branchList.length
 		},
 		getTagNum: function() {
-			return gitData.tagList.length;
+			return gitData.tagList.length
 		},
 		getCollaboratorNum: function() {
-			return gitData.collaboratorList.length;
+			return gitData.collaboratorList.length
 		},
 		isEmptyRepository: function() {
 			if (gitData.defaultBranch.length == 0) {
-				return true;
+				return true
 			} else {
-				return false;
+				return false
 			}
 		}
-	};
-});
+	}
+})

@@ -1,17 +1,17 @@
-<div ng-controller="MainController" ng-init="getRepository();">
-	<div ng-if="isEmptyRepository();">
+<div ng-controller="MainController" ng-init="getRepository()">
+	<div ng-if="isEmptyRepository()">
 		<h2>{{getCurrentRepositoryName()}}</h2>
 		<hr />
 		<h4><strong>Push an existing repository from the command line</strong></h4>
 		<pre>git remote add origin git@{{getDomain()}}:/{{getCurrentRepositoryName()}}
 git push -u origin master</pre>
 	</div>
-	<div ng-if="!isEmptyRepository();">
+	<div ng-if="!isEmptyRepository()">
 		<h2>{{getCurrentRepositoryName()}}</h2>
 		<div class="content table-responsive">
 			<table class="table table-bordered">
 				<tbody>
-					<tr style="text-align: center;">
+					<tr style="text-align: center">
 						<td class="col-sm-3 btn-default btn-sm">
 							<a href>{{getCommitNum()}} commits</a>
 						</td>
@@ -46,9 +46,9 @@ git push -u origin master</pre>
 						<td class="col-sm-10">
 							<strong>{{commit.summary}}</strong><a href ng-show="commit.hasMoreInfo" ng-click="showMoreInfo[$index] ? showMoreInfo[$index]=false : showMoreInfo[$index]=true" class="more-info">...</a><br />
 							<span class="sub-content"><a href="mailto:{{commit.authorEmail}}">{{commit.author}}</a> committed at {{commit.date}}</span><br />
-							<pre class="sub-content" ng-show="showMoreInfo[{{$index}}]" ng-init="showMoreInfo.push(false)" style="white-space: pre;">{{commit.message}}</pre>
+							<pre class="sub-content" ng-show="showMoreInfo[{{$index}}]" ng-init="showMoreInfo.push(false)" style="white-space: pre">{{commit.message}}</pre>
 						</td>
-						<td class="col-sm-2" style="text-align: center;">
+						<td class="col-sm-2" style="text-align: center">
 							<button type="button" class="btn btn-sm btn-info">{{commit.id.substring(0,7)}}</button>
 						</td>
 					</tr>

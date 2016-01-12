@@ -1,4 +1,4 @@
-<div class="panel-columns" ng-show="isLogin();">
+<div class="panel-columns" ng-show="isLogin()">
 	<div class="panel-menu">
 		<div class="panel panel-default">
 			<div class="panel-heading"><strong>Personal settings</strong></div>
@@ -11,7 +11,7 @@
 		<div class="panel panel-default">
 			<div class="panel-heading"><strong>Change password</strong></div>
 			<div class="panel-body form" ng-controller="MainController">
-				<form ng-submit="updatePassword()" class="form form-left" ng-init="isNotMatch=true;">
+				<form ng-submit="updatePassword()" class="form form-left" ng-init="isNotMatch=true">
 					<strong>Old password</strong><br />
 					<input type="password" ng-model="oldPassword" id="oldPassword" class="form-control" placeholder="Old password" required>
 					<strong>New password</strong><br />

@@ -1,62 +1,62 @@
-var myApp = angular.module('myApp');
+var myApp = angular.module('myApp')
 
 myApp.controller('NavController', function($rootScope, $scope, $http, $location, $routeParams, UserService, ViewService) {
-	$scope.username = '';
+	$scope.username = ''
 
 	$scope.isLogin = function() {
-		return UserService.isLogin();
+		return UserService.isLogin()
 	}
 
 	$scope.getView = function() {
-		return ViewService.getView();
+		return ViewService.getView()
 	}
 
 	$scope.setView = function(view) {
-		ViewService.setView(view);
-		updateViewClass();
+		ViewService.setView(view)
+		updateViewClass()
 	}
 
 	$scope.updateViewClass = function() {
-		updateViewClass();
+		updateViewClass()
 	}
 
 	$scope.logout = function() {
-		UserService.clearUser();
+		UserService.clearUser()
 		$http({
 			method: 'POST',
 			url: '/api/user/logout'
 		}).then(function successCallback(response) {
-			$location.path("/");
+			$location.path("/")
 		}, function errorCallback(error) {
-			$location.path("/");
-		});
+			$location.path("/")
+		})
 	}
 
 	// Subscribes
 	ViewService.subscribeViewChange($scope, function changeView() {
-		updateViewClass();
-	});
+		updateViewClass()
+	})
 	UserService.subscribeUserChange($scope, function changeUser() {
-		updateViewClass();
-		$scope.username = UserService.getUsername();
-	});
+		updateViewClass()
+		$scope.username = UserService.getUsername()
+	})
 
 	// Inner functions
 	var updateViewClass = function() {
-		$scope.signinClass = ViewService.isSignin();
-		$scope.signupClass = ViewService.isSignup();
-		$scope.repositoryClass = ViewService.isRespository();
-		$scope.sshkeyClass = ViewService.isSshKey();
-		$scope.settingsClass = ViewService.isSettings();
+		$scope.signinClass = ViewService.isSignin()
+		$scope.signupClass = ViewService.isSignup()
+		$scope.repositoryClass = ViewService.isRespository()
+		$scope.sshkeyClass = ViewService.isSshKey()
+		$scope.settingsClass = ViewService.isSettings()
 		if (UserService.isLogin()) {
-			$scope.navbarClass = {display: 'block'};
-			$scope.loginNavbarClass = {display: 'none'};
-			$scope.memberNavbarClass = {display: 'block'};
+			$scope.navbarClass = {display: 'block'}
+			$scope.loginNavbarClass = {display: 'none'}
+			$scope.memberNavbarClass = {display: 'block'}
 		} else {
-			$scope.navbarClass = {display: 'none'};
-			$scope.loginNavbarClass = {display: 'block'};
-			$scope.memberNavbarClass = {display: 'none'};
+			$scope.navbarClass = {display: 'none'}
+			$scope.loginNavbarClass = {display: 'block'}
+			$scope.memberNavbarClass = {display: 'none'}
 		}
 	}
 
-});
+})

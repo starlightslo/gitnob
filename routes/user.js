@@ -23,7 +23,7 @@ var isLogin = function(req, res, next) {
 	var token = req.session.token
 	if (token) {
 		// verifies secret and checks exp
-		jwt.verify(token, app.get('superSecret'), function(err, userData) {
+		jwt.verify(token, req.app.get('superSecret'), function(err, userData) {
 			if (err) {
 				req.log.info({
 					catalog: 'User',
@@ -36,7 +36,7 @@ var isLogin = function(req, res, next) {
 				return
 			} else {
 				// Update userData from database
-				var User = UserModule.init(db, app.settings.config.database.type)
+				var User = UserModule.init(req.db, req.app.settings.config.database.type)
 				User.isUserExisting(userData.username).then(function(result) {
 					req.session.userData = result.data
 					req.log.info({
@@ -56,7 +56,7 @@ var isLogin = function(req, res, next) {
 					// processing the length of ssh key
 					for (var i in req.session.userData.sshKeyList) {
 						if (req.session.userData.sshKeyList[i].key.length > 64) {
-							req.session.userData.sshKeyList[i].key = req.session.userData.sshKeyList[i].key.substring(0,64);
+							req.session.userData.sshKeyList[i].key = req.session.userData.sshKeyList[i].key.substring(0,64)
 						}
 					}
 					
@@ -136,12 +136,12 @@ var signup = function(req, res, next) {
 		collaborateRepositoryList: [],
 		type: 0
 	}
-	var User = UserModule.init(db, app.settings.config.database.type)
+	var User = UserModule.init(req.db, req.app.settings.config.database.type)
 	User.signup(userData).then(function(result) {
 		delete userData.password
 
 		// Create user token
-		var token = jwt.sign(userData, app.get('superSecret'), {
+		var token = jwt.sign(userData, req.app.get('superSecret'), {
 			expiresIn: TOKEN_EXPRIED
 		})
 		req.session.token = token
@@ -205,14 +205,14 @@ var signin = function(req, res, next) {
 		username: username,
 		password: password
 	}
-	var User = UserModule.init(db, app.settings.config.database.type)
+	var User = UserModule.init(req.db, req.app.settings.config.database.type)
 	User.signin(userData).then(function(result) {
 		if (result.code == UserModule.USER_OK.code) {
 			userData = result.data
 			delete userData.password
 
 			// Create user token
-			var token = jwt.sign(userData, app.get('superSecret'), {
+			var token = jwt.sign(userData, req.app.get('superSecret'), {
 				expiresIn: TOKEN_EXPRIED
 			})
 			req.session.token = token
@@ -296,7 +296,7 @@ var changePassword = function(req, res, next) {
 		password: password,
 		newPassword: bcrypt.hashSync(newPassword)
 	}
-	var User = UserModule.init(db, app.settings.config.database.type)
+	var User = UserModule.init(req.db, req.app.settings.config.database.type)
 	User.changePassword(passwordData).then(function(result) {
 		req.log.info({
 			catalog: 'User',
@@ -331,7 +331,7 @@ var logout = function(req, res, next) {
 	var token = req.session.token
 	if (token) {
 		// verifies secret and checks exp
-		jwt.verify(token, app.get('superSecret'), function(err, userData) {
+		jwt.verify(token, req.app.get('superSecret'), function(err, userData) {
 			if (err) {
 				req.log.info({
 					catalog: 'User',
@@ -404,7 +404,7 @@ var addSshKey = function(req, res, next) {
 		return
 	}
 
-	var User = UserModule.init(db, app.settings.config.database.type)
+	var User = UserModule.init(req.db, req.app.settings.config.database.type)
 	User.addSshKey(userData.username, sshKey, keyName).then(function(result) {
 		req.log.info({
 			catalog: 'User',
@@ -467,7 +467,7 @@ var deleteSshKey = function(req, res, next) {
 		return
 	}
 
-	var User = UserModule.init(db, app.settings.config.database.type)
+	var User = UserModule.init(req.db, req.app.settings.config.database.type)
 	User.deleteSshKey(userData.username, keyName).then(function(result) {
 		req.log.info({
 			catalog: 'User',

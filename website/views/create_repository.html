@@ -1,0 +1,11 @@
+<div class="form" ng-controller="MainController">
+	<form ng-submit="createRepository()" class="form form-signin" ng-show="isLogin()">
+		<h2 class="form-signin-heading">New Repository</h2>
+		<label for="inputRepository" class="sr-only">Repository name</label>
+		<input type="repositoryName" ng-model="repositoryName" ng-check-normal-data="inputRepository"  ng-class="dataClass" id="inputRepository" class="form-control" placeholder="Repository name" maxlength="16" required autofocus>
+		<button class="btn btn-lg btn-primary btn-block" type="submit" ng-disabled="!isOK">Create</button>
+	</form>
+	<div class="alert alert-danger" role="alert" ng-show="errorMessage.length > 0">
+		{{errorMessage}}
+	</div>
+</div>

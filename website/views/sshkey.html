@@ -1,0 +1,29 @@
+<div ng-init="getSshKeys()">
+	<div class="content-title">
+		<h2 class="sub-header">SSH Keys</h2>
+		<div class="content-title-right">
+			<input type="text" class="form-control" placeholder="Search..." ng-model="search.name">
+			<button type="button" class="btn btn-success" style="margin-left: 10px" ng-click="redirectTo('/sshkey/create')">New SSH Key</button>
+		</div>
+	</div>
+	<div class="content table-responsive">
+		<table class="table table-hover">
+			<thead>
+				<tr>
+					<th class="col-sm-3">Name</th>
+					<th class="col-sm-9">SSH Key</th>
+					<th class="col-sm-2">Delete</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr ng-repeat="sshKey in sshKeyList | filter:search">
+					<td>{{sshKey.name}}</td>
+					<td><span class="label label-default">{{sshKey.key}}</span></td>
+					<td style="text-align: center">
+						<a href><span class="glyphicon glyphicon-trash" aria-hidden="true" confirmed-click="deleteSshKey(sshKey.name)" ng-confirm-click="Are you sure want to delete {{sshKey.name}}?"></span></a>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+</div>

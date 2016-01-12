@@ -1,0 +1,13 @@
+<div class="form" ng-controller="MainController">
+	<form ng-submit="createSshKey()" class="form form-sshkey" ng-show="isLogin()">
+		<h2 class="form-signin-heading">Add an SSH Key</h2>
+		<label for="inputKeyName" class="sr-only">Key Name</label>
+		<input type="text" ng-model="keyName" ng-check-ssh-data="inputKeyName" ng-class="keyNameClass" id="inputKeyName" class="form-control" placeholder="Key name" maxlength="16" required autofocus>
+		<label for="inputSshKey" class="sr-only">SSH Key</label>
+		<textarea ng-model="sshKey" ng-check-ssh-data="inputSshKey" ng-class="sshKeyClass" id="inputSshKey" class="form-control" placeholder="SSH Key" required rows="15"></textarea>
+		<button class="btn btn-lg btn-primary btn-block" type="submit" ng-disabled="!isOK">Add Key</button>
+	</form>
+	<div class="alert alert-danger" role="alert" ng-show="errorMessage.length > 0">
+		{{errorMessage}}
+	</div>
+</div>

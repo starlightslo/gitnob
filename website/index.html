@@ -1,9 +1,60 @@
-<html>
+<html ng-app="myApp">
 	<head>
 		<meta charset="utf-8">
 		<title>GitNob</title>
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+		<link rel="stylesheet" href="css/sticky-footer-navbar.css">
+		<link rel="stylesheet" href="css/style.css">
+		<link rel="stylesheet" href="css/content.css">
 	</head>
 	<body>
-		Hello GitNob!!!
+		<!-- Fixed navbar -->
+		<nav class="navbar navbar-default navbar-fixed-top">
+			<div class="container" ng-controller="NavController" ng-init="init()">
+				<div class="navbar-header">
+					<a class="navbar-brand" href="">GitNob</a>
+				</div>
+				<div id="navbar" class="navbar-collapse collapse">
+					<ul class="nav navbar-nav" style="display: none" ng-init="updateViewClass()" ng-style="navbarClass">
+						<li ng-class="repositoryClass"><a href="#/repository" ng-click="setView(3)">Repositories</a></li>
+						<li ng-class="sshkeyClass"><a href="#/sshkey" ng-click="setView(4)">SSH Key</a></li>
+						<li ng-class="settingsClass"><a href="#/settings" ng-click="setView(5)">Settings</a></li>
+					</ul>
+					<ul class="nav navbar-nav navbar-right" style="display: none" ng-init="updateViewClass()" ng-style="loginNavbarClass">
+						<li ng-class="signinClass"><a href="#/signin" ng-click="setView(1)">Sing In</a></li>
+						<li ng-class="signupClass"><a href="#/signup" ng-click="setView(2)">Sing Up</a></li>
+					</ul>
+					<ul class="nav navbar-nav navbar-right" style="display: none" ng-init="updateViewClass()" ng-style="memberNavbarClass">
+						<li><div class="nav-button">Hi , {{username}}</div></li>
+						<li><a href ng-click="logout()">Logout</a></li>
+					</ul>
+				</div><!--/.nav-collapse -->
+			</div>
+		</nav>
+		
+		<div class="container">
+			<div ng-view></div>
+		</div> <!-- /container -->
+
+		<footer class="footer">
+			<div class="container">
+				<div class="git">
+					<iframe src="https://ghbtns.com/github-btn.html?user=starlightslo&repo=gitnob&type=star&count=true&v=2" frameborder="0" scrolling="0" width="100px" height="20px"></iframe>
+
+					<div class="copyisright">Copy is right © developed by <a href="https://github.com/starlightslo/" target="_blank">Tony Huang</a></div>
+				</div>
+			</div>
+		</footer>
+
+		<script src="https://code.jquery.com/jquery-1.11.3.min.js" type="text/javascript"></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js" type="text/javascript"></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-route.min.js" type="text/javascript"></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+		<script src="/app.js" type="text/javascript"></script>
+		<script src="/services/view.js" type="text/javascript"></script>
+		<script src="/services/user.js" type="text/javascript"></script>
+		<script src="/services/git.js" type="text/javascript"></script>
+		<script src="/controllers/nav.js" type="text/javascript"></script>
+		<script src="/controllers/main.js" type="text/javascript"></script>
 	</body>
 </html>

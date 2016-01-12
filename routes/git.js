@@ -8,17 +8,32 @@ var UserModule = require('../modules/user')
 var create = function(req, res, next) {
 	var userData = req.session.userData
 	var repositoryName = req.body.name
+
+	// Check value of input
+	var err = ''
 	if (!repositoryName) {
-		req.log.info({
+		err = 'The input data is empty.'
+	}
+
+	// Check special characters
+	var regularExpression = /^[a-zA-Z0-9_-]{1,16}$/
+	if(err.length == 0 && !regularExpression.test(repositoryName)) {
+		err = 'Should not contain special character.'
+	}
+
+	// Check error
+	if (err.length > 0) {
+		req.log.error({
 			catalog: 'Git',
 			action: 'Create',
 			req: {
 				userData: userData,
 				repositoryName: repositoryName
 			},
-			result: 'Missing repositoryName'
+			error: err
 		})
-		res.status(400).send('Bad Request')
+		res.status(400).send(err)
+		res.end()
 		return
 	}
 
@@ -71,17 +86,32 @@ var create = function(req, res, next) {
 var destroy = function(req, res, next) {
 	var userData = req.session.userData
 	var repositoryName = req.params.repository
+
+	// Check value of input
+	var err = ''
 	if (!repositoryName) {
-		req.log.info({
+		err = 'The input data is empty.'
+	}
+
+	// Check special characters
+	var regularExpression = /^[a-zA-Z0-9_-]{1,16}$/
+	if(err.length == 0 && !regularExpression.test(repositoryName)) {
+		err = 'Should not contain special character.'
+	}
+
+	// Check error
+	if (err.length > 0) {
+		req.log.error({
 			catalog: 'Git',
 			action: 'Destory',
 			req: {
 				userData: userData,
 				repositoryName: repositoryName
 			},
-			result: 'Missing repositoryName'
+			error: err
 		})
-		res.status(400).send('Bad Request')
+		res.status(400).send(err)
+		res.end()
 		return
 	}
 
@@ -148,6 +178,35 @@ var destroy = function(req, res, next) {
 var get = function(req, res, next) {
 	var userData = req.session.userData
 	var repository = req.params.repository
+
+	// Check value of input
+	var err = ''
+	if (!repository) {
+		err = 'The input data is empty.'
+	}
+
+	// Check special characters
+	var regularExpression = /^[a-zA-Z0-9_-]{1,16}$/
+	if(err.length == 0 && !regularExpression.test(repository)) {
+		err = 'Should not contain special character.'
+	}
+
+	// Check error
+	if (err.length > 0) {
+		req.log.error({
+			catalog: 'Git',
+			action: 'Get',
+			req: {
+				userData: userData,
+				repository: repository
+			},
+			error: err
+		})
+		res.status(400).send(err)
+		res.end()
+		return
+	}
+
 	var ref = req.params.ref
 	var head = req.params.head
 	var branch = req.params.branch
@@ -180,7 +239,7 @@ var get = function(req, res, next) {
 
 	// List all repositores
 	GitModule.open(repositoryPath).then(function(repository) {
-		this.repo = repository
+		repo = repository
 		// Get all branch
 		return GitModule.listBranch(repository)
 	}, function(err) {
@@ -203,14 +262,14 @@ var get = function(req, res, next) {
 	.then(function(branchArray) {
 		if (!branchArray) return
 		branchList = branchArray
-		return GitModule.listTag(this.repo)
+		return GitModule.listTag(repo)
 	})
 
 	// Result of tag
 	.then(function(tagArray) {
 		if (!tagArray) return
 		tagList = tagArray
-		return this.repo.getCurrentBranch()
+		return repo.getCurrentBranch()
 	})
 
 	// Result of current branch
@@ -219,10 +278,10 @@ var get = function(req, res, next) {
 		defaultBranch = reference.name()
 		if (branch) {
 			// Use branch of user's selected
-			return GitModule.listCommit(this.repo, branch)
+			return GitModule.listCommit(repo, branch)
 		} else {
 			// Use default branch
-			return GitModule.listCommit(this.repo, defaultBranch)
+			return GitModule.listCommit(repo, defaultBranch)
 		}
 	})
 
@@ -299,6 +358,35 @@ var list = function(req, res, next) {
 var addCollaborator = function(req, res, next) {
 	var collaboratorName = req.body.username
 	var repository = req.params.repository
+
+	// Check value of input
+	var err = ''
+	if (!repository || !collaboratorName) {
+		err = 'The input data is empty.'
+	}
+
+	// Check special characters
+	var regularExpression = /^[a-zA-Z0-9_-]{1,16}$/
+	if(err.length == 0 && !regularExpression.test(repository)) {
+		err = 'Should not contain special character.'
+	}
+
+	// Check error
+	if (err.length > 0) {
+		req.log.error({
+			catalog: 'Git',
+			action: 'Add Collaborator',
+			req: {
+				userData: userData,
+				repository: repository
+			},
+			error: err
+		})
+		res.status(400).send(err)
+		res.end()
+		return
+	}
+
 	var repositoryPath = path.join(app.settings.config.gitPath, repository)
 
 	// Check permission

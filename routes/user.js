@@ -54,9 +54,9 @@ var isLogin = function(req, res, next) {
 					}
 
 					// processing the length of ssh key
-					for (var i in this.userData.sshKeyList) {
-						if (this.userData.sshKeyList[i].key.length > 64) {
-							this.userData.sshKeyList[i].key = this.userData.sshKeyList[i].key.substring(0,64);
+					for (var i in req.session.userData.sshKeyList) {
+						if (req.session.userData.sshKeyList[i].key.length > 64) {
+							req.session.userData.sshKeyList[i].key = req.session.userData.sshKeyList[i].key.substring(0,64);
 						}
 					}
 					

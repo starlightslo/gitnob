@@ -72,23 +72,40 @@ var User = function(db, dbType) {
 			})
 			return deferred.promise
 		},
-		changePassword: function(passwordData) {
+		checkPassword: function(username, password) {
 			var deferred = Promise.defer()
 			if (dbType == 'txt') {
 				db.read().then(function(data) {
 					var userList = data.userList
 					for (var i in userList) {
-						if (userList[i].username == passwordData.username) {
+						if (userList[i].username == username) {
 							// Check password
-							if (bcrypt.compareSync(passwordData.password, userList[i].password)) {
-								// Change to the new password
-								userList[i].password = passwordData.newPassword
-
-								// Write back to database
-								return db.write(JSON.stringify(data))
+							if (bcrypt.compareSync(password, userList[i].password)) {
+								return deferred.resolve(USER_OK)
 							} else {
 								return deferred.resolve(USER_WITH_INVALIDE_PASSWORD)
 							}
+						}
+					}
+					return deferred.resolve(USER_NOT_FOUND)
+				}, function(err) {
+					return deferred.reject(err)
+				})
+			}
+			return deferred.promise
+		},
+		changePassword: function(username, newPassword) {
+			var deferred = Promise.defer()
+			if (dbType == 'txt') {
+				db.read().then(function(data) {
+					var userList = data.userList
+					for (var i in userList) {
+						if (userList[i].username == username) {
+							// Change to the new password
+							userList[i].password = newPassword
+
+							// Write back to database
+							return db.write(JSON.stringify(data))
 						}
 					}
 					return deferred.resolve(USER_NOT_FOUND)
@@ -162,6 +179,13 @@ var User = function(db, dbType) {
 					var userList = data.userList;
 					for (var i in userList) {
 						delete userList[i].password;
+
+						// processing the length of ssh key
+						for (var j in userList[i].sshKeyList) {
+							if (userList[i].sshKeyList[j].key.length > 64) {
+								userList[i].sshKeyList[j].key = userList[i].sshKeyList[j].key.substring(0,64)
+							}
+						}
 					}
 					return deferred.resolve({
 						code: USER_OK.code,

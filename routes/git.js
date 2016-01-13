@@ -146,8 +146,8 @@ var destroy = function(req, res, next) {
 		return
 	}
 
-	// Creates an empty Git repository
-	GitModule.destroy(userData.username, repositoryPath, repositoryName, req.db, req.app.settings.config.database.type).then(function(result) {
+	// Destory the repository
+	GitModule.destroy(repositoryPath, repositoryName, req.db, req.app.settings.config.database.type).then(function(result) {
 		req.log.info({
 			catalog: 'Git',
 			action: 'Destory',

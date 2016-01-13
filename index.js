@@ -38,6 +38,12 @@ app.delete('/api/user/ssh_key/:name', [dbRouter.init, userRouter.isLogin, userRo
 
 // Admin
 app.get('/api/admin/git/repository', [dbRouter.init, userRouter.isLogin, adminRouter.checkAdminPermission, adminRouter.listRepository])
+app.get('/api/admin/git/repository/:repository', [dbRouter.init, userRouter.isLogin, adminRouter.checkAdminPermission, adminRouter.getRepository])
+app.get('/api/admin/git/repository/:repository/:ref/:head/:branch', [dbRouter.init, userRouter.isLogin, adminRouter.checkAdminPermission, adminRouter.getRepository])
+app.put('/api/admin/git/repository/:repository/owner', [dbRouter.init, userRouter.isLogin, adminRouter.checkAdminPermission, adminRouter.addRepositoryOwner])
+app.delete('/api/admin/git/repository/:repository', [dbRouter.init, userRouter.isLogin, adminRouter.destroyRepository])
 app.get('/api/admin/user', [dbRouter.init, userRouter.isLogin, adminRouter.checkAdminPermission, adminRouter.listUser])
+app.get('/api/admin/user/:username', [dbRouter.init, userRouter.isLogin, adminRouter.checkAdminPermission, adminRouter.getUser])
 app.put('/api/admin/user', [dbRouter.init, userRouter.isLogin, adminRouter.checkAdminPermission, adminRouter.addUser])
+app.post('/api/admin/user/:username/change_password', [dbRouter.init, userRouter.isLogin, adminRouter.checkAdminPermission, adminRouter.changePassword])
 app.delete('/api/admin/user', [dbRouter.init, userRouter.isLogin, adminRouter.checkAdminPermission, adminRouter.deleteUser])

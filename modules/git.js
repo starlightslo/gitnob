@@ -50,21 +50,27 @@ var init = function(username, repositoryPath, repositoryName, db, dbType) {
 	return deferred.promise
 }
 
-var destroy = function(username, repositoryPath, repositoryName, db, dbType) {
+var destroy = function(repositoryPath, repositoryName, db, dbType) {
 	var deferred = Promise.defer()
 	// Read user data
 	db.read().then(function(data) {
 		var userList = data.userList
 		for (var i in userList) {
-			if (userList[i].username == username) {
-				var index = userList[i].repositoryList.indexOf(repositoryName)
+			// Delete owner
+			var index = userList[i].repositoryList.indexOf(repositoryName)
+			if (index > -1) {
 				userList[i].repositoryList.splice(index, 1)
+			}
 
-				// Write back to database
-				return db.write(JSON.stringify(data))
+			// Delete collaborators
+			var index = userList[i].repositoryList.indexOf(repositoryName)
+			if (index > -1) {
+				userList[i].repositoryList.splice(index, 1)
 			}
 		}
-		return deferred.resolve(UserModule.USER_NOT_FOUND)
+
+		// Write back to database
+		return db.write(JSON.stringify(data))
 	}, function(err) {
 		return deferred.reject(err)
 	})
@@ -244,6 +250,64 @@ var listCollaborator = function(db, dbType, repository) {
 	return deferred.promise
 }
 
+var getOwner = function(db, dbType, repository) {
+	var deferred = Promise.defer()
+
+	if (dbType == 'txt') {
+		// Read user data
+		db.read().then(function(data) {
+			var userList = data.userList
+			for (var i in userList) {
+				if (userList[i].repositoryList.indexOf(repository) > -1) {
+					return deferred.resolve({
+						code: GIT_OK.code,
+						result: GIT_OK.result,
+						data: userList[i].username
+					})
+				}
+			}
+			return deferred.resolve({
+				code: GIT_OK.code,
+				result: GIT_OK.result,
+				data: ''
+			})
+		}, function(err) {
+			return deferred.reject(err)
+		})
+	}
+	return deferred.promise
+}
+
+var addOwner = function(db, dbType, repository, username) {
+	var deferred = Promise.defer()
+
+	if (dbType == 'txt') {
+		// Read user data
+		db.read().then(function(data) {
+			var userList = data.userList
+			for (var i in userList) {
+				if (userList[i].username == username) {
+					userList[i].repositoryList.push(repository)
+
+					// Store into database
+					return db.write(JSON.stringify(data))
+				}
+			}
+			return deferred.resolve(UserModule.USER_NOT_FOUND)
+		}, function(err) {
+			return deferred.reject(err)
+		})
+
+		// The result of write
+		.then(function(result) {
+			return deferred.resolve(GIT_OK)
+		}, function(err) {
+			return deferred.reject(err)
+		})
+	}
+	return deferred.promise
+}
+
 module.exports = {
 	init: init,
 	destroy: destroy,
@@ -255,6 +319,8 @@ module.exports = {
 	addCollaborator: addCollaborator,
 	deleteCollaborator: deleteCollaborator,
 	listCollaborator: listCollaborator,
+	getOwner: getOwner,
+	addOwner: addOwner,
 
 	GIT_OK,
 	GIT_NO_PERMISSION,

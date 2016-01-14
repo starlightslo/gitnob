@@ -98,6 +98,66 @@ myApp.config(function($routeProvider) {
 			}
 		}
 	})
+	.when('/admin', {
+		controller: 'AdminController',
+		templateUrl: 'views/admin.html',
+		resolve: {
+			data: function (ViewService, UserService) {
+				UserService.getUser()
+				return ViewService.setView(9)
+			}
+		}
+	})
+	.when('/admin/:subview', {
+		controller: 'AdminController',
+		templateUrl: 'views/admin.html',
+		resolve: {
+			data: function (ViewService, UserService) {
+				UserService.getUser()
+				return ViewService.setView(9)
+			}
+		}
+	})
+	.when('/admin/user/create', {
+		controller: 'AdminController',
+		templateUrl: 'views/admin/new_user.html',
+		resolve: {
+			data: function (ViewService, UserService) {
+				UserService.getUser()
+				return ViewService.setView(9)
+			}
+		}
+	})
+	.when('/admin/user/:username', {
+		controller: 'AdminController',
+		templateUrl: 'views/admin/user.html',
+		resolve: {
+			data: function (ViewService, UserService) {
+				UserService.getUser()
+				return ViewService.setView(9)
+			}
+		}
+	})
+	.when('/admin/repository/:repository', {
+		controller: 'AdminController',
+		templateUrl: 'views/admin/repository.html',
+		resolve: {
+			data: function (ViewService, UserService) {
+				UserService.getUser()
+				return ViewService.setView(9)
+			}
+		}
+	})
+	.when('/admin/repository/:repository/:ref/:head/:branch', {
+		controller: 'AdminController',
+		templateUrl: 'views/admin/repository.html',
+		resolve: {
+			data: function (ViewService, UserService) {
+				UserService.getUser()
+				return ViewService.setView(9)
+			}
+		}
+	})
 	.otherwise({
 		redirectTo: '/',
 		templateUrl: 'views/index.html',

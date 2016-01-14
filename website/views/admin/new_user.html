@@ -1,0 +1,16 @@
+<div class="form" ng-controller="AdminController" ng-init="isAdmin()">
+	<form ng-submit="addUser()" class="form form-signin" ng-init="isNotMatch=true">
+		<h2 class="form-signin-heading">Add New User</h2>
+		<label for="inputUsername" class="sr-only">Username</label>
+		<input type="username" ng-model="username" ng-check-signup-data="inputUsername" ng-class="usernameClass" id="inputUsername" class="form-control" placeholder="Username" maxlength="16" required autofocus>
+		<label for="inputPassword" class="sr-only">Password</label>
+		<input type="password" ng-model="password" ng-check-signup-data="inputPassword" ng-class="passwordClass" id="inputPassword" class="form-control" placeholder="Password" maxlength="16" required>
+		<label for="inputCheckPassword" class="sr-only">Check Password</label>
+		<input type="password" ng-model="checkPassword" ng-check-signup-data="inputPassword" ng-class="checkPasswordClass" id="inputCheckPassword" class="form-control" placeholder="Password again"  maxlength="16"required>
+		
+		<button class="btn btn-lg btn-primary btn-block" type="submit" ng-disabled="isNotMatch">Create</button>
+	</form>
+	<div class="alert alert-danger" role="alert" ng-show="errorMessage.length > 0">
+		{{errorMessage}}
+	</div>
+</div>

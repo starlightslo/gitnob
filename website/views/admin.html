@@ -1,0 +1,98 @@
+<div ng-controller="AdminController" ng-init="isAdmin()">
+	<!-- Subview Navbar -->
+	<ul class="nav nav-tabs">
+		<li role="presentation" ng-class="repositoryClass"><a href="#/admin/repository">Repositories</a></li>
+		<li role="presentation" ng-class="userClass"><a href="#/admin/user">Users</a></li>
+	</ul>
+
+	<!-- Content -->
+	<div ng-if="isRepositoryView()">
+		<div ng-init="getRepositories()">
+			<div class="content-title">
+				<div class="content-title-right">
+					<input type="text" class="form-control" placeholder="Search..." ng-model="search.name">
+				</div>
+			</div>
+			<div class="content table-responsive">
+				<table class="table table-hover">
+					<thead>
+						<tr>
+							<th class="col-sm-2 content-center">Repository</th>
+							<th class="col-sm-2 content-center">Owner</th>
+							<th class="col-sm-7 content-center">Collaborator</th>
+							<th class="col-sm-1 content-center">Delete</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr ng-repeat="repository in repositoryList | filter:search">
+							<td class="content-center"><a href="#/admin/repository/{{repository.name}}">{{repository.name}}</a></td>
+							<td class="content-center"><a href="#/admin/user/{{repository.data.owner}}">{{repository.data.owner}}</a></td>
+							<td class="content-center">
+								<ul>
+									<li class="content" ng-repeat="collaborator in repository.data.collaboratorList">
+										<a href="#/admin/user/{{rcollaborator}}}" class="label label-info">
+											{{collaborator}}
+										</a>
+									</li>
+								</ul>
+							</td>
+							<td class="content-center">
+								<a href><span class="glyphicon glyphicon-trash" aria-hidden="true" confirmed-click="deleteRepository(repository.name)" ng-confirm-click="Are you sure want to delete {{repository.name}}?"></span></a>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+	<div ng-if="isUserView()">
+		<div ng-init="getUsers()">
+			<div class="content-title">
+				<div class="content-title-right">
+					<input type="text" class="form-control" placeholder="Search..." ng-model="search.username">
+					<button type="button" class="btn btn-success" style="margin-left: 10px" ng-click="redirectTo('/admin/user/create')">New User</button>
+				</div>
+			</div>
+			<div class="content table-responsive">
+				<table class="table table-hover">
+					<thead>
+						<tr>
+							<th class="col-sm-2 content-center">Username</th>
+							<th class="col-sm-1 content-center">Type</th>
+							<th class="col-sm-4 content-center">Repositories</th>
+							<th class="col-sm-4 content-center">Collaborate Repositories</th>
+							<th class="col-sm-1 content-center">Delete</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr ng-repeat="user in userList | filter:search">
+							<td class="content-center"><a href="#/admin/user/{{user.username}}">{{user.username}}</a></td>
+							<td class="content-center">{{user.type}}</td>
+							<td class="content-center">
+								<ul>
+									<li class="content" ng-repeat="repository in user.repositoryList">
+										<a href="#/admin/repository/{{repository}}" class="label label-primary">
+											{{repository}}
+										</a>
+									</li>
+								</ul>
+							</td>
+							<td class="content-center">
+								<ul>
+									<li class="content" ng-repeat="collaborateRepository in repository.collaborateRepositoryList">
+										<a href="#/admin/repository/{{collaborateRepository}}" class="label label-info">
+											{{collaborateRepository}}
+										</a>
+									</li>
+								</ul>
+							</td>
+							<td class="content-center">
+								<a href ng-if="!isMyself(user.username)"><span class="glyphicon glyphicon-trash" aria-hidden="true" confirmed-click="deleteUser(user.username)" ng-confirm-click="Are you sure want to delete {{user.username}}?"></span></a>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>

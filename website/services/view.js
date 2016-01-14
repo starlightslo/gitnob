@@ -7,7 +7,7 @@ myApp.factory('ViewService', function($rootScope) {
 	var REPOSITORY_PAGE = 3
 	var SSH_KEY_PAGE = 4
 	var SETTINGS_PAGE = 5
-
+	var ADMIN_PAGE = 9
 
 	var view = SIGNIN_PAGE
 	return {
@@ -42,6 +42,10 @@ myApp.factory('ViewService', function($rootScope) {
 		},
 		isSettings: function() {
 			if (view == SETTINGS_PAGE) return 'active'
+			else return ''
+		},
+		isAdmin: function() {
+			if (view == ADMIN_PAGE) return 'active'
 			else return ''
 		}
 	}

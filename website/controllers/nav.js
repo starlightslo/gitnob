@@ -7,6 +7,10 @@ myApp.controller('NavController', function($rootScope, $scope, $http, $location,
 		return UserService.isLogin()
 	}
 
+	$scope.isAdmin = function() {
+		return UserService.isAdmin()
+	}
+
 	$scope.getView = function() {
 		return ViewService.getView()
 	}
@@ -48,6 +52,7 @@ myApp.controller('NavController', function($rootScope, $scope, $http, $location,
 		$scope.repositoryClass = ViewService.isRespository()
 		$scope.sshkeyClass = ViewService.isSshKey()
 		$scope.settingsClass = ViewService.isSettings()
+		$scope.adminClass = ViewService.isAdmin()
 		if (UserService.isLogin()) {
 			$scope.navbarClass = {display: 'block'}
 			$scope.loginNavbarClass = {display: 'none'}

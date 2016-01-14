@@ -10,6 +10,11 @@ var USER_NOT_FOUND = {code: 1001, result: 'User not found.'}
 var USER_WITH_INVALIDE_PASSWORD = {code: 1002, result: 'User with invalide password.'}
 var USER_HAS_SAME_KEY_NAME = {code: 1003, result: 'There is a key with the same name.'}
 
+// User Type
+var USER_TYPE_BLOCK = -1;
+var USER_TYPE_NEED_TO_SET_PASSWORD = 0;
+var USER_TYPE_NORMAL = 1;
+var USER_TYPE_ADMIN = 9;
 
 var User = function(db, dbType) {
 	return {
@@ -67,23 +72,40 @@ var User = function(db, dbType) {
 			})
 			return deferred.promise
 		},
-		changePassword: function(passwordData) {
+		checkPassword: function(username, password) {
 			var deferred = Promise.defer()
 			if (dbType == 'txt') {
 				db.read().then(function(data) {
 					var userList = data.userList
 					for (var i in userList) {
-						if (userList[i].username == passwordData.username) {
+						if (userList[i].username == username) {
 							// Check password
-							if (bcrypt.compareSync(passwordData.password, userList[i].password)) {
-								// Change to the new password
-								userList[i].password = passwordData.newPassword
-
-								// Write back to database
-								return db.write(JSON.stringify(data))
+							if (bcrypt.compareSync(password, userList[i].password)) {
+								return deferred.resolve(USER_OK)
 							} else {
 								return deferred.resolve(USER_WITH_INVALIDE_PASSWORD)
 							}
+						}
+					}
+					return deferred.resolve(USER_NOT_FOUND)
+				}, function(err) {
+					return deferred.reject(err)
+				})
+			}
+			return deferred.promise
+		},
+		changePassword: function(username, newPassword) {
+			var deferred = Promise.defer()
+			if (dbType == 'txt') {
+				db.read().then(function(data) {
+					var userList = data.userList
+					for (var i in userList) {
+						if (userList[i].username == username) {
+							// Change to the new password
+							userList[i].password = newPassword
+
+							// Write back to database
+							return db.write(JSON.stringify(data))
 						}
 					}
 					return deferred.resolve(USER_NOT_FOUND)
@@ -99,6 +121,31 @@ var User = function(db, dbType) {
 				})
 			}
 			return deferred.promise
+		},
+		deleteUser: function(username) {
+			var deferred = Promise.defer();
+			if (dbType == 'txt') {
+				db.read().then(function(data) {
+					var userList = data.userList;
+					for (var i in userList) {
+						if (userList[i].username == username) {
+							userList.splice(i, 1);
+							return db.write(JSON.stringify(data));
+						}
+					}
+					return deferred.resolve(USER_NOT_FOUND);
+				}, function(err) {
+					return deferred.reject(err);
+				})
+
+				// The result of write
+				.then(function(result) {
+					return deferred.resolve(USER_OK);
+				}, function(err) {
+					return deferred.reject(err);
+				})
+			}
+			return deferred.promise;
 		},
 		isUserExisting: function(username) {
 			var deferred = Promise.defer()
@@ -124,6 +171,32 @@ var User = function(db, dbType) {
 				})
 			}
 			return deferred.promise
+		},
+		list: function() {
+			var deferred = Promise.defer();
+			if (dbType == 'txt') {
+				db.read().then(function(data) {
+					var userList = data.userList;
+					for (var i in userList) {
+						delete userList[i].password;
+
+						// processing the length of ssh key
+						for (var j in userList[i].sshKeyList) {
+							if (userList[i].sshKeyList[j].key.length > 64) {
+								userList[i].sshKeyList[j].key = userList[i].sshKeyList[j].key.substring(0,64)
+							}
+						}
+					}
+					return deferred.resolve({
+						code: USER_OK.code,
+						result: USER_OK.result,
+						data: data.userList
+					});
+				}, function(err) {
+					return deferred.reject(err);
+				});
+			}
+			return deferred.promise;
 		},
 		addSshKey: function(username, sshKey, keyName) {
 			var deferred = Promise.defer()
@@ -254,5 +327,10 @@ module.exports = {
 	USER_OK: USER_OK,
 	USER_EXISTING: USER_EXISTING,
 	USER_NOT_FOUND: USER_NOT_FOUND,
-	USER_WITH_INVALIDE_PASSWORD: USER_WITH_INVALIDE_PASSWORD
+	USER_WITH_INVALIDE_PASSWORD: USER_WITH_INVALIDE_PASSWORD,
+
+	USER_TYPE_BLOCK,
+	USER_TYPE_NEED_TO_SET_PASSWORD,
+	USER_TYPE_NORMAL,
+	USER_TYPE_ADMIN
 }

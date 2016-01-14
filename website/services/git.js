@@ -1,10 +1,11 @@
 var myApp = angular.module('myApp')
 
 myApp.factory('GitService', function($rootScope, $http) {
-	var repositoryName = ""
-	var currentBranch = ""
+	var repositoryName = ''
+	var currentBranch = ''
 	var gitData = {
-		defaultBranch: "",
+		owner: '',
+		defaultBranch: '',
 		branchList: [],
 		tagList: [],
 		commitList: [],
@@ -20,6 +21,11 @@ myApp.factory('GitService', function($rootScope, $http) {
 			gitData.branchList = data.branchList
 			gitData.tagList = data.tagList
 			gitData.commitList = data.commitList
+			if (data.owner) {
+				gitData.owner = data.owner
+			} else {
+				gitData.owner = ''
+			}
 			currentBranch = gitData.defaultBranch
 
 			// Process commits
@@ -73,6 +79,9 @@ myApp.factory('GitService', function($rootScope, $http) {
 		},
 		getCollaboratorNum: function() {
 			return gitData.collaboratorList.length
+		},
+		getOwner: function() {
+			return gitData.owner
 		},
 		isEmptyRepository: function() {
 			if (gitData.defaultBranch.length == 0) {

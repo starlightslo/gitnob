@@ -27,6 +27,13 @@ myApp.factory('UserService', function($rootScope, $http) {
 				return false
 			}
 		},
+		isAdmin: function() {
+			if (this.getUserType() == USER_TYPE_ADMIN) {
+				return true
+			} else {
+				return false
+			}
+		},
 		getUserType: function() {
 			return userData.type
 		},

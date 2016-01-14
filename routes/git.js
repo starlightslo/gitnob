@@ -16,7 +16,7 @@ var create = function(req, res, next) {
 	}
 
 	// Check special characters
-	var regularExpression = /^[a-zA-Z0-9_-]{1,16}$/
+	var regularExpression = /^[a-zA-Z0-9_-]{1,}$/
 	if(err.length == 0 && !regularExpression.test(repositoryName)) {
 		err = 'Should not contain special character.'
 	}
@@ -94,7 +94,7 @@ var destroy = function(req, res, next) {
 	}
 
 	// Check special characters
-	var regularExpression = /^[a-zA-Z0-9_-]{1,16}$/
+	var regularExpression = /^[a-zA-Z0-9_-]{1,}$/
 	if(err.length == 0 && !regularExpression.test(repositoryName)) {
 		err = 'Should not contain special character.'
 	}
@@ -146,8 +146,8 @@ var destroy = function(req, res, next) {
 		return
 	}
 
-	// Creates an empty Git repository
-	GitModule.destroy(userData.username, repositoryPath, repositoryName, req.db, req.app.settings.config.database.type).then(function(result) {
+	// Destory the repository
+	GitModule.destroy(repositoryPath, repositoryName, req.db, req.app.settings.config.database.type).then(function(result) {
 		req.log.info({
 			catalog: 'Git',
 			action: 'Destory',
@@ -186,7 +186,7 @@ var get = function(req, res, next) {
 	}
 
 	// Check special characters
-	var regularExpression = /^[a-zA-Z0-9_-]{1,16}$/
+	var regularExpression = /^[a-zA-Z0-9_-]{1,}$/
 	if(err.length == 0 && !regularExpression.test(repository)) {
 		err = 'Should not contain special character.'
 	}
@@ -366,7 +366,7 @@ var addCollaborator = function(req, res, next) {
 	}
 
 	// Check special characters
-	var regularExpression = /^[a-zA-Z0-9_-]{1,16}$/
+	var regularExpression = /^[a-zA-Z0-9_-]{1,}$/
 	if(err.length == 0 && !regularExpression.test(repository)) {
 		err = 'Should not contain special character.'
 	}

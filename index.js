@@ -15,6 +15,7 @@ if (config.database.type == 'txt') {
 var dbRouter = require('./routes/db')
 var gitRouter = require('./routes/git')
 var userRouter = require('./routes/user')
+var adminRouter = require('./routes/admin')
 
 // Git
 app.get('/api/git/repository', [dbRouter.init, userRouter.isLogin, gitRouter.list])
@@ -34,3 +35,15 @@ app.post('/api/user/logout', [userRouter.logout])
 app.post('/api/user/change_password', [dbRouter.init, userRouter.isLogin, userRouter.changePassword])
 app.put('/api/user/ssh_key', [dbRouter.init, userRouter.isLogin, userRouter.addSshKey])
 app.delete('/api/user/ssh_key/:name', [dbRouter.init, userRouter.isLogin, userRouter.deleteSshKey])
+
+// Admin
+app.get('/api/admin/git/repository', [dbRouter.init, userRouter.isLogin, adminRouter.checkAdminPermission, adminRouter.listRepository])
+app.get('/api/admin/git/repository/:repository', [dbRouter.init, userRouter.isLogin, adminRouter.checkAdminPermission, adminRouter.getRepository])
+app.get('/api/admin/git/repository/:repository/:ref/:head/:branch', [dbRouter.init, userRouter.isLogin, adminRouter.checkAdminPermission, adminRouter.getRepository])
+app.put('/api/admin/git/repository/:repository/owner', [dbRouter.init, userRouter.isLogin, adminRouter.checkAdminPermission, adminRouter.addRepositoryOwner])
+app.delete('/api/admin/git/repository/:repository', [dbRouter.init, userRouter.isLogin, adminRouter.destroyRepository])
+app.get('/api/admin/user', [dbRouter.init, userRouter.isLogin, adminRouter.checkAdminPermission, adminRouter.listUser])
+app.get('/api/admin/user/:username', [dbRouter.init, userRouter.isLogin, adminRouter.checkAdminPermission, adminRouter.getUser])
+app.put('/api/admin/user', [dbRouter.init, userRouter.isLogin, adminRouter.checkAdminPermission, adminRouter.addUser])
+app.post('/api/admin/user/:username/change_password', [dbRouter.init, userRouter.isLogin, adminRouter.checkAdminPermission, adminRouter.changePassword])
+app.delete('/api/admin/user/:username', [dbRouter.init, userRouter.isLogin, adminRouter.checkAdminPermission, adminRouter.deleteUser])

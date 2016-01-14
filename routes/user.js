@@ -8,6 +8,8 @@ var UserModule = require('../modules/user')
 
 var user = function(req, res, next) {
 	var userData = req.session.userData
+	delete userData.password
+	
 	req.log.info({
 		catalog: 'User',
 		action: 'User',
@@ -47,7 +49,7 @@ var isLogin = function(req, res, next) {
 					})
 
 					// Should denied the user type with < 0
-					if (req.session.userData.type < 0) {
+					if (req.session.userData.type <= UserModule.USER_TYPE_BLOCK) {
 						res.status(403).send('Access Denied')
 						res.end()
 						return
@@ -134,7 +136,7 @@ var signup = function(req, res, next) {
 		sshKeyList: [],
 		repositoryList: [],
 		collaborateRepositoryList: [],
-		type: 0
+		type: UserModule.USER_TYPE_NORMAL
 	}
 	var User = UserModule.init(req.db, req.app.settings.config.database.type)
 	User.signup(userData).then(function(result) {
@@ -281,6 +283,7 @@ var changePassword = function(req, res, next) {
 			catalog: 'User',
 			action: 'Change Password',
 			req: {
+				userData: userData,
 				password: password,
 				newPassword: newPassword
 			},
@@ -291,19 +294,51 @@ var changePassword = function(req, res, next) {
 		return
 	}
 
-	var passwordData = {
-		username: userData.username,
-		password: password,
-		newPassword: bcrypt.hashSync(newPassword)
-	}
+	// Check Password
 	var User = UserModule.init(req.db, req.app.settings.config.database.type)
-	User.changePassword(passwordData).then(function(result) {
+	User.checkPassword(userData.username, password).then(function(result) {
+		if (result.code == UserModule.USER_OK.code) {
+			return User.changePassword(userData.username, bcrypt.hashSync(newPassword))
+		} else {
+			req.log.info({
+				catalog: 'User',
+				action: 'Change Password',
+				req: {
+					userData: userData,
+					password: bcrypt.hashSync(password),
+					newPassword: bcrypt.hashSync(newPassword)
+				},
+				result: result
+			})
+			res.json(result)
+			res.end()
+			return
+		}
+	}, function(err) {
+		req.log.error({
+			catalog: 'User',
+			action: 'Change Password',
+			req: {
+				userData: userData,
+				password: bcrypt.hashSync(password),
+				newPassword: bcrypt.hashSync(newPassword)
+			},
+			error: err
+		})
+		res.status(500).send('Server Error: ' + err)
+		res.end()
+		return
+	})
+
+	// The result of change password
+	.then(function(result) {
 		req.log.info({
 			catalog: 'User',
 			action: 'Change Password',
 			req: {
 				userData: userData,
-				passwordData: passwordData
+				password: bcrypt.hashSync(password),
+				newPassword: bcrypt.hashSync(newPassword)
 			},
 			result: result
 		})
@@ -316,7 +351,8 @@ var changePassword = function(req, res, next) {
 			action: 'Change Password',
 			req: {
 				userData: userData,
-				passwordData: passwordData
+				password: bcrypt.hashSync(password),
+				newPassword: bcrypt.hashSync(newPassword)
 			},
 			error: err
 		})

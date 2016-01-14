@@ -1,0 +1,39 @@
+<div ng-controller="AdminController" ng-init="isAdmin()">
+	<!-- Subview Navbar -->
+	<ul class="nav nav-tabs">
+		<li role="presentation" class=""><a href="#/admin/repository">Repositories</a></li>
+		<li role="presentation" class="active"><a href="#/admin/user">Users</a></li>
+	</ul>
+
+	<!-- Content -->
+	<div class="content-title">
+		<h2 class="sub-header">{{username}}</h2>
+	</div>
+	<div>
+		<div class="panel-menu">
+			<div class="panel panel-default">
+				<div class="panel-heading"><strong>Personal settings</strong></div>
+				<div class="list-group">
+					<div class="list-group-item"><strong>Password</strong></div>
+				</div>
+			</div>
+		</div>
+		<div class="panel-content">
+			<div class="panel panel-default">
+				<div class="panel-heading"><strong>Change password</strong></div>
+				<div class="panel-body form">
+					<form ng-submit="updatePassword()" class="form form-left" ng-init="isNotMatch=true">
+						<strong>New password</strong><br />
+						<input type="password" ng-model="newPassword" ng-check-update-password="newPassword" id="newPassword" class="form-control" ng-class="newPasswordClass" placeholder="New password" required>
+						<strong>Confirm new password</strong><br />
+						<input type="password" ng-model="confirmPassword" ng-check-update-password="confirmPassword" id="confirmPassword" class="form-control" ng-class="confirmPasswordClass" placeholder="Confirm new password" required>
+						<button class="btn btn-primary" type="submit" ng-disabled="isNotMatch">Update password</button>
+					</form>
+					<div class="alert alert-danger" role="alert" ng-show="errorMessage.length > 0">
+						{{errorMessage}}
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

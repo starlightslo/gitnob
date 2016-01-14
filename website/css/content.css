@@ -1,5 +1,5 @@
 .content-title {
-	margin-bottom: 10px;
+	margin: 10px;
 }
 .sub-header {
 	display: inline;
@@ -10,6 +10,9 @@
 }
 .content {
 	display: inline;
+}
+.content-center {
+	text-align: center;
 }
 .sub-content {
 	font-size: 12px;
@@ -36,6 +39,10 @@
 	width: 75%;
 	padding-right: 5px;
 	padding-left: 5px;
+}
+li.content {
+	text-align:center;
+	display:inline-block;
 }
 a.more-info {
 	margin: 0 5 0 5;

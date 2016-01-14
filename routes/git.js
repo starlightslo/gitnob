@@ -16,7 +16,7 @@ var create = function(req, res, next) {
 	}
 
 	// Check special characters
-	var regularExpression = /^[a-zA-Z0-9_-]{1,16}$/
+	var regularExpression = /^[a-zA-Z0-9_-]{1,}$/
 	if(err.length == 0 && !regularExpression.test(repositoryName)) {
 		err = 'Should not contain special character.'
 	}
@@ -94,7 +94,7 @@ var destroy = function(req, res, next) {
 	}
 
 	// Check special characters
-	var regularExpression = /^[a-zA-Z0-9_-]{1,16}$/
+	var regularExpression = /^[a-zA-Z0-9_-]{1,}$/
 	if(err.length == 0 && !regularExpression.test(repositoryName)) {
 		err = 'Should not contain special character.'
 	}
@@ -186,7 +186,7 @@ var get = function(req, res, next) {
 	}
 
 	// Check special characters
-	var regularExpression = /^[a-zA-Z0-9_-]{1,16}$/
+	var regularExpression = /^[a-zA-Z0-9_-]{1,}$/
 	if(err.length == 0 && !regularExpression.test(repository)) {
 		err = 'Should not contain special character.'
 	}
@@ -366,7 +366,7 @@ var addCollaborator = function(req, res, next) {
 	}
 
 	// Check special characters
-	var regularExpression = /^[a-zA-Z0-9_-]{1,16}$/
+	var regularExpression = /^[a-zA-Z0-9_-]{1,}$/
 	if(err.length == 0 && !regularExpression.test(repository)) {
 		err = 'Should not contain special character.'
 	}

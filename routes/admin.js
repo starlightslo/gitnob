@@ -377,7 +377,7 @@ var getRepository = function(req, res, next) {
 	}
 
 	// Check special characters
-	var regularExpression = /^[a-zA-Z0-9_-]{1,16}$/
+	var regularExpression = /^[a-zA-Z0-9_-]{1,}$/
 	if(err.length == 0 && !regularExpression.test(repository)) {
 		err = 'Should not contain special character.'
 	}
@@ -410,10 +410,31 @@ var getRepository = function(req, res, next) {
 	var branchList = []
 	var tagList = []
 	var defaultBranch = ''
+	var collaboratorList = []
 
 	// Get the owner of repository
 	GitModule.getOwner(req.db, req.app.settings.config.database.type, repository).then(function(result) {
 		owner = result.data
+		return GitModule.listCollaborator(req.db, req.app.settings.config.database.type, repository)
+	}, function(err) {
+		req.log.error({
+			catalog: 'Admin',
+			action: 'Get - Repository',
+			req: {
+				userData: userData,
+				repository: repository,
+				branch: branch,
+				repositoryPath: repositoryPath
+			},
+			error: err
+		})
+		res.status(500).send('Server Error: ' + err)
+		return
+	})
+
+	// Get collaborator list
+	.then(function(result) {
+		collaboratorList = result.data
 		return GitModule.open(repositoryPath)
 	}, function(err) {
 		req.log.error({
@@ -512,7 +533,8 @@ var getRepository = function(req, res, next) {
 				defaultBranch: defaultBranch,
 				branchList: branchList,
 				tagList: tagList,
-				commitList: commitList
+				commitList: commitList,
+				collaboratorList: collaboratorList
 			}
 		}
 		req.log.info({
@@ -544,7 +566,7 @@ var addRepositoryOwner = function(req, res, next) {
 	}
 
 	// Check special characters
-	var regularExpression = /^[a-zA-Z0-9_-]{1,16}$/
+	var regularExpression = /^[a-zA-Z0-9_-]{1,}$/
 	if(err.length == 0 && !regularExpression.test(repositoryName)) {
 		err = 'Should not contain special character.'
 	}
@@ -625,7 +647,7 @@ var destroyRepository = function(req, res, next) {
 	}
 
 	// Check special characters
-	var regularExpression = /^[a-zA-Z0-9_-]{1,16}$/
+	var regularExpression = /^[a-zA-Z0-9_-]{1,}$/
 	if(err.length == 0 && !regularExpression.test(repositoryName)) {
 		err = 'Should not contain special character.'
 	}

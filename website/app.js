@@ -276,7 +276,7 @@ myApp.directive('ngCheckNormalData', [
 						scope.dataClass = 'valid-form'
 						if($(data).val().length > 0) {
 							// Check special characters
-							var regularExpression = /^[a-zA-Z0-9_-]{1,16}$/
+							var regularExpression = /^[a-zA-Z0-9_-]{1,}$/
 							if(!regularExpression.test($(data).val())) {
 								scope.errorMessage = 'Should not contain special character.'
 								scope.dataClass = 'invalid-form'

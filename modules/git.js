@@ -285,6 +285,16 @@ var addOwner = function(db, dbType, repository, username) {
 		// Read user data
 		db.read().then(function(data) {
 			var userList = data.userList
+			// Remove the existing owner
+			for (var i in userList) {
+				var index = userList[i].repositoryList.indexOf(repository)
+				if (index > -1) {
+					userList[i].repositoryList.splice(index, 1)
+					break
+				}
+			}
+
+			// Set new owner
 			for (var i in userList) {
 				if (userList[i].username == username) {
 					userList[i].repositoryList.push(repository)

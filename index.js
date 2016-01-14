@@ -46,4 +46,4 @@ app.get('/api/admin/user', [dbRouter.init, userRouter.isLogin, adminRouter.check
 app.get('/api/admin/user/:username', [dbRouter.init, userRouter.isLogin, adminRouter.checkAdminPermission, adminRouter.getUser])
 app.put('/api/admin/user', [dbRouter.init, userRouter.isLogin, adminRouter.checkAdminPermission, adminRouter.addUser])
 app.post('/api/admin/user/:username/change_password', [dbRouter.init, userRouter.isLogin, adminRouter.checkAdminPermission, adminRouter.changePassword])
-app.delete('/api/admin/user', [dbRouter.init, userRouter.isLogin, adminRouter.checkAdminPermission, adminRouter.deleteUser])
+app.delete('/api/admin/user/:username', [dbRouter.init, userRouter.isLogin, adminRouter.checkAdminPermission, adminRouter.deleteUser])

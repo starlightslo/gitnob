@@ -210,7 +210,7 @@ var getUser = function(req, res, next) {
 
 var deleteUser = function(req, res, next) {
 	var userData = req.session.userData
-	var username = req.body.username
+	var username = req.params.username
 
 	// Check value of input
 	var err = ''
@@ -225,8 +225,7 @@ var deleteUser = function(req, res, next) {
 			action: 'Delete User',
 			req: {
 				userData: userData,
-				username: username,
-				password: password
+				deleteUsername: username
 			},
 			error: err
 		})

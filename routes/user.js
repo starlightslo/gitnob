@@ -8,6 +8,8 @@ var UserModule = require('../modules/user')
 
 var user = function(req, res, next) {
 	var userData = req.session.userData
+	delete userData.password
+	
 	req.log.info({
 		catalog: 'User',
 		action: 'User',

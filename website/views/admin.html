@@ -24,7 +24,7 @@
 						</tr>
 					</thead>
 					<tbody>
-						<tr ng-repeat="repository in repositoryList | filter:search">
+						<tr ng-repeat="repository in repositoryList | orderBy:'name' | filter:search">
 							<td class="content-center"><a href="#/admin/repository/{{repository.name}}">{{repository.name}}</a></td>
 							<td class="content-center"><a href="#/admin/user/{{repository.data.owner}}">{{repository.data.owner}}</a></td>
 							<td class="content-center">
@@ -65,7 +65,7 @@
 						</tr>
 					</thead>
 					<tbody>
-						<tr ng-repeat="user in userList | filter:search">
+						<tr ng-repeat="user in userList | orderBy:'username' | filter:search">
 							<td class="content-center"><a href="#/admin/user/{{user.username}}">{{user.username}}</a></td>
 							<td class="content-center">{{user.type}}</td>
 							<td class="content-center">

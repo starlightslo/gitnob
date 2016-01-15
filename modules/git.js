@@ -63,7 +63,7 @@ var destroy = function(repositoryPath, repositoryName, db, dbType) {
 			}
 
 			// The collaborators also remove the repository
-			let index = userList[i].collaborateRepositoryList.indexOf(repositoryName)
+			index = userList[i].collaborateRepositoryList.indexOf(repositoryName)
 			if (index >= 0) {
 				userList[i].collaborateRepositoryList.splice(index, 1)
 			}

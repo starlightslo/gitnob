@@ -747,6 +747,25 @@ var addCollaborator = function(req, res, next) {
 
 	var repositoryPath = path.join(req.app.settings.config.gitPath, repository)
 
+	// Check is self
+	if (userData.username === collaboratorName) {
+		let result = GitModule.GIT_ADD_SELF
+		req.log.info({
+			catalog: 'Admin',
+			action: 'Add Collaborator',
+			req: {
+				userData: userData,
+				collaboratorName: collaboratorName,
+				repository: repository,
+				repositoryPath: repositoryPath
+			},
+			result: result
+		})
+		res.json(result)
+		res.end()
+		return
+	}
+
 	// Add collaborator
 	GitModule.addCollaborator(req.db, req.app.settings.config.database.type, repository, collaboratorName).then(function(result) {
 		req.log.info({

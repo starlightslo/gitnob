@@ -26,6 +26,9 @@ myApp.factory('GitService', function($rootScope, $http) {
 			} else {
 				gitData.owner = ''
 			}
+			if (data.collaboratorList) {
+				gitData.collaboratorList = data.collaboratorList
+			}
 			currentBranch = gitData.defaultBranch
 
 			// Process commits
@@ -76,6 +79,9 @@ myApp.factory('GitService', function($rootScope, $http) {
 		},
 		getTagNum: function() {
 			return gitData.tagList.length
+		},
+		getCollaborator: function() {
+			return gitData.collaboratorList
 		},
 		getCollaboratorNum: function() {
 			return gitData.collaboratorList.length

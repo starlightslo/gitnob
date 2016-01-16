@@ -3,6 +3,13 @@ var myApp = angular.module('myApp')
 myApp.controller('MainController', function($rootScope, $scope, $http, $location, $routeParams, $timeout, UserService, GitService) {
 	$scope.errorMessage = ''
 
+	const REPOSITORY_TAB = 'repository'
+	const RELEASES_TAB = 'releases'
+	const CONTRIBUTOR_TAB = 'controbutor'
+
+	// Set default tab
+	$scope.tab = REPOSITORY_TAB
+
 	$scope.isLogin = function() {
 		if (!UserService.isLogin()) {
 			$location.path("/")
@@ -123,6 +130,53 @@ myApp.controller('MainController', function($rootScope, $scope, $http, $location
 		})
 	}
 
+	$scope.addCollaborator = function() {
+		console.log($scope.newCollaborator)
+		if (!$scope.newCollaborator || $scope.newCollaborator.length == 0) return
+
+		var data = {
+			username: $scope.newCollaborator
+		}
+		$http({
+			method: 'PUT',
+			url: '/api/git/repository/' + $routeParams.repositoryName + '/collaborator',
+			data: data
+		}).then(function successCallback(response) {
+			console.log(response)
+			if (response.status == 200) {
+				if (response.data.code == 200) {
+					$scope.getRepository()
+					$scope.errorMessage = 'username...'
+					$scope.newCollaboratorClass = ''
+				} else {
+					$scope.errorMessage = response.data.result
+					$scope.newCollaboratorClass = 'invalid-form'
+				}
+			}
+			$scope.newCollaborator = ''
+		}, function errorCallback(error) {
+			console.log(error)
+			$location.path("/")
+		})
+	}
+
+	$scope.deleteCollaborator = function(collaborator) {
+		$http({
+			method: 'DELETE',
+			url: '/api/git/repository/' + $routeParams.repositoryName + '/collaborator/' + collaborator
+		}).then(function successCallback(response) {
+			console.log(response)
+			if (response.status == 200) {
+				if (response.data.code == 200) {
+					$scope.getRepository()
+				}
+			}
+		}, function errorCallback(error) {
+			console.log(error)
+			$location.path("/")
+		})
+	}
+
 	$scope.isEmptyRepository = function() {
 		return GitService.isEmptyRepository()
 	}
@@ -157,6 +211,10 @@ myApp.controller('MainController', function($rootScope, $scope, $http, $location
 
 	$scope.getTagNum = function() {
 		return GitService.getTagNum()
+	}
+
+	$scope.getCollaborator = function() {
+		return GitService.getCollaborator()
 	}
 
 	$scope.getCollaboratorNum = function() {
@@ -321,6 +379,34 @@ myApp.controller('MainController', function($rootScope, $scope, $http, $location
 
 	$scope.getDomain = function() {
 		return $location.host()
+	}
+
+	$scope.isRepositoryTab = function() {
+		if ($scope.tab == REPOSITORY_TAB) {
+			return true
+		} else {
+			return false
+		}
+	}
+
+	$scope.isReleasesTab = function() {
+		if ($scope.tab == RELEASES_TAB) {
+			return true
+		} else {
+			return false
+		}
+	}
+
+	$scope.isContributorTab = function() {
+		if ($scope.tab == CONTRIBUTOR_TAB) {
+			return true
+		} else {
+			return false
+		}
+	}
+
+	$scope.setTab = function(tab) {
+		$scope.tab = tab
 	}
 
 	// Receiver

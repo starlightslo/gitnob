@@ -1,8 +1,15 @@
 var myApp = angular.module('myApp')
 
 myApp.controller('AdminController', function($rootScope, $scope, $http, $location, $routeParams, $timeout, UserService, GitService) {
-	var REPOSITORY_VIEW = 'repository'
-	var USER_VIEW = 'user'
+	const REPOSITORY_VIEW = 'repository'
+	const USER_VIEW = 'user'
+
+	const REPOSITORY_TAB = 'repository'
+	const RELEASES_TAB = 'releases'
+	const CONTRIBUTOR_TAB = 'controbutor'
+
+	// Set default tab
+	$scope.tab = REPOSITORY_TAB
 
 	// Set subview
 	if ($routeParams.subview) {
@@ -134,6 +141,52 @@ myApp.controller('AdminController', function($rootScope, $scope, $http, $locatio
 		})
 	}
 
+	$scope.addCollaborator = function() {
+		if (!$scope.newCollaborator || $scope.newCollaborator.length == 0) return
+
+		var data = {
+			username: $scope.newCollaborator
+		}
+		$http({
+			method: 'PUT',
+			url: '/api/admin/git/repository/' + $scope.repository + '/collaborator',
+			data: data
+		}).then(function successCallback(response) {
+			console.log(response)
+			if (response.status == 200) {
+				if (response.data.code == 200) {
+					$scope.getRepository()
+					$scope.errorMessage = 'username...'
+					$scope.newCollaboratorClass = ''
+				} else {
+					$scope.errorMessage = response.data.result
+					$scope.newCollaboratorClass = 'invalid-form'
+				}
+			}
+			$scope.newCollaborator = ''
+		}, function errorCallback(error) {
+			console.log(error)
+			$location.path("/")
+		})
+	}
+
+	$scope.deleteCollaborator = function(collaborator) {
+		$http({
+			method: 'DELETE',
+			url: '/api/admin/git/repository/' + $scope.repository + '/collaborator/' + collaborator
+		}).then(function successCallback(response) {
+			console.log(response)
+			if (response.status == 200) {
+				if (response.data.code == 200) {
+					$scope.getRepository()
+				}
+			}
+		}, function errorCallback(error) {
+			console.log(error)
+			$location.path("/")
+		})
+	}
+
 	$scope.setOwner = function(newOwner) {
 		$scope.newOwner = newOwner
 	}
@@ -176,6 +229,10 @@ myApp.controller('AdminController', function($rootScope, $scope, $http, $locatio
 
 	$scope.getTagNum = function() {
 		return GitService.getTagNum()
+	}
+
+	$scope.getCollaborator = function() {
+		return GitService.getCollaborator()
 	}
 
 	$scope.getCollaboratorNum = function() {
@@ -301,6 +358,34 @@ myApp.controller('AdminController', function($rootScope, $scope, $http, $locatio
 		} else {
 			return false
 		}
+	}
+
+	$scope.isRepositoryTab = function() {
+		if ($scope.tab == REPOSITORY_TAB) {
+			return true
+		} else {
+			return false
+		}
+	}
+
+	$scope.isReleasesTab = function() {
+		if ($scope.tab == RELEASES_TAB) {
+			return true
+		} else {
+			return false
+		}
+	}
+
+	$scope.isContributorTab = function() {
+		if ($scope.tab == CONTRIBUTOR_TAB) {
+			return true
+		} else {
+			return false
+		}
+	}
+
+	$scope.setTab = function(tab) {
+		$scope.tab = tab
 	}
 
 	// Inner functions

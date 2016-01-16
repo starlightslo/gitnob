@@ -356,6 +356,7 @@ var list = function(req, res, next) {
 }
 
 var addCollaborator = function(req, res, next) {
+	var userData = req.session.userData
 	var collaboratorName = req.body.username
 	var repository = req.params.repository
 
@@ -406,7 +407,7 @@ var addCollaborator = function(req, res, next) {
 		return
 	}
 
-	// Check collaborator name
+	// Add collaborator
 	GitModule.addCollaborator(req.db, req.app.settings.config.database.type, repository, collaboratorName).then(function(result) {
 		req.log.info({
 			catalog: 'Git',
@@ -462,7 +463,7 @@ var deleteCollaborator = function(req, res, next) {
 		return
 	}
 
-	// Check collaborator name
+	// Delete collaborator
 	GitModule.deleteCollaborator(req.db, req.app.settings.config.database.type, repository, collaboratorName).then(function(result) {
 		req.log.info({
 			catalog: 'Git',

@@ -712,6 +712,113 @@ var destroyRepository = function(req, res, next) {
 	})
 }
 
+var addCollaborator = function(req, res, next) {
+	var userData = req.session.userData
+	var collaboratorName = req.body.username
+	var repository = req.params.repository
+
+	// Check value of input
+	var err = ''
+	if (!repository || !collaboratorName) {
+		err = 'The input data is empty.'
+	}
+
+	// Check special characters
+	var regularExpression = /^[a-zA-Z0-9_-]{1,}$/
+	if(err.length == 0 && !regularExpression.test(repository)) {
+		err = 'Should not contain special character.'
+	}
+
+	// Check error
+	if (err.length > 0) {
+		req.log.error({
+			catalog: 'Admin',
+			action: 'Add Collaborator',
+			req: {
+				userData: userData,
+				repository: repository
+			},
+			error: err
+		})
+		res.status(400).send(err)
+		res.end()
+		return
+	}
+
+	var repositoryPath = path.join(req.app.settings.config.gitPath, repository)
+
+	// Add collaborator
+	GitModule.addCollaborator(req.db, req.app.settings.config.database.type, repository, collaboratorName).then(function(result) {
+		req.log.info({
+			catalog: 'Admin',
+			action: 'Add Collaborator',
+			req: {
+				userData: userData,
+				collaboratorName: collaboratorName,
+				repository: repository,
+				repositoryPath: repositoryPath
+			},
+			result: result
+		})
+		res.json(result)
+		res.end()
+		return
+	}, function(err) {
+		req.log.error({
+			catalog: 'Admin',
+			action: 'Add Collaborator',
+			req: {
+				userData: userData,
+				collaboratorName: collaboratorName,
+				repository: repository,
+				repositoryPath: repositoryPath
+			},
+			error: err
+		})
+		res.status(500).send('Server Error: ' + err)
+		return
+	})
+}
+
+var deleteCollaborator = function(req, res, next) {
+	var userData = req.session.userData
+	var repository = req.params.repository
+	var collaboratorName = req.params.collaborator
+	var repositoryPath = path.join(req.app.settings.config.gitPath, repository)
+
+	// Delete collaborator
+	GitModule.deleteCollaborator(req.db, req.app.settings.config.database.type, repository, collaboratorName).then(function(result) {
+		req.log.info({
+			catalog: 'Admin',
+			action: 'Delete Collaborator',
+			req: {
+				userData: userData,
+				collaboratorName: collaboratorName,
+				repository: repository,
+				repositoryPath: repositoryPath
+			},
+			result: result
+		})
+		res.json(result)
+		res.end()
+		return
+	}, function(err) {
+		req.log.error({
+			catalog: 'Admin',
+			action: 'Delete Collaborator',
+			req: {
+				userData: userData,
+				collaboratorName: collaboratorName,
+				repository: repository,
+				repositoryPath: repositoryPath
+			},
+			error: err
+		})
+		res.status(500).send('Server Error: ' + err)
+		return
+	})
+}
+
 var checkAdminPermission = function(req, res, next) {
 	var userData = req.session.userData
 
@@ -736,6 +843,8 @@ module.exports = {
 	getRepository: getRepository,
 	addRepositoryOwner: addRepositoryOwner,
 	destroyRepository: destroyRepository,
+	addCollaborator: addCollaborator,
+	deleteCollaborator: deleteCollaborator,
 	listUser: listUser,
 	getUser: getUser,
 	addUser: addUser,

@@ -8,7 +8,7 @@ app.set('config', config)
 
 // Init Database
 if (config.database.type == 'txt') {
-	require('./modules/txtDB').init(config.database.path, config.database.name)
+	require('./modules/txtdb').init(config.database.path, config.database.name)
 }
 
 // Routers

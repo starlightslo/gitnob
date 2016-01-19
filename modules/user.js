@@ -9,6 +9,7 @@ var USER_EXISTING = {code: 1000, result: 'User already existing.'}
 var USER_NOT_FOUND = {code: 1001, result: 'User not found.'}
 var USER_WITH_INVALIDE_PASSWORD = {code: 1002, result: 'User with invalide password.'}
 var USER_HAS_SAME_KEY_NAME = {code: 1003, result: 'There is a key with the same name.'}
+var USER_CREATE_ERROR = {code: 1100, result: 'Create user failed.'}
 
 // User Type
 var USER_TYPE_BLOCK = -1;
@@ -25,6 +26,16 @@ var User = function(db, dbType) {
 					// Username already existing
 					return deferred.resolve(USER_EXISTING)
 				} else {
+					// Create user in system
+					var execSync = require('child_process').execSync
+					const command = 'sudo useradd -G ubuntu -b /home/ -m ' + userData.username
+					try {
+						const resp = execSync(command)
+					} catch (e) {
+						return deferred.resolve(USER_CREATE_ERROR)
+					}
+
+					// Starting to write into database
 					if (dbType == 'txt') {
 						// Insert new user
 						result.data.userList.push(userData)
@@ -38,10 +49,6 @@ var User = function(db, dbType) {
 			}, function(err) {
 				return deferred.reject(err)
 			}).then(function(result) {
-				// Create user in system
-				/* =======================
-				            TODO
-				   ======================= */
 				return deferred.resolve(USER_OK)
 			}, function(err) {
 				return deferred.reject(err)

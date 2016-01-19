@@ -1,23 +1,26 @@
 'use strict'
 
-var bcrypt = require('bcryptjs')
-var Promise = require('bluebird')
+const bcrypt = require('bcryptjs')
+const Promise = require('bluebird')
+const fs = require('fs')
 
 // Response status
-var USER_OK = {code: 200, result: 'OK'}
-var USER_EXISTING = {code: 1000, result: 'User already existing.'}
-var USER_NOT_FOUND = {code: 1001, result: 'User not found.'}
-var USER_WITH_INVALIDE_PASSWORD = {code: 1002, result: 'User with invalide password.'}
-var USER_HAS_SAME_KEY_NAME = {code: 1003, result: 'There is a key with the same name.'}
-var USER_CREATE_ERROR = {code: 1100, result: 'Create user failed.'}
+const USER_OK = {code: 200, result: 'OK'}
+const USER_EXISTING = {code: 1000, result: 'User already existing.'}
+const USER_NOT_FOUND = {code: 1001, result: 'User not found.'}
+const USER_WITH_INVALIDE_PASSWORD = {code: 1002, result: 'User with invalide password.'}
+const USER_HAS_SAME_KEY_NAME = {code: 1003, result: 'There is a key with the same name.'}
+const USER_CREATE_ERROR = {code: 1100, result: 'Create user failed.'}
 
 // User Type
-var USER_TYPE_BLOCK = -1;
-var USER_TYPE_NEED_TO_SET_PASSWORD = 0;
-var USER_TYPE_NORMAL = 1;
-var USER_TYPE_ADMIN = 9;
+const USER_TYPE_BLOCK = -1;
+const USER_TYPE_NEED_TO_SET_PASSWORD = 0;
+const USER_TYPE_NORMAL = 1;
+const USER_TYPE_ADMIN = 9;
 
-var User = function(db, dbType) {
+const PREFIX_PERMISSION_STR = 'no-port-forwarding,no-agent-forwarding,no-X11-forwarding,no-pty,command="git-shell -c \\"$SSH_ORIGINAL_COMMAND\\"" '
+
+var User = function(db, dbType, runUser) {
 	return {
 		signup: function(userData) {
 			var deferred = Promise.defer()
@@ -31,6 +34,20 @@ var User = function(db, dbType) {
 					const command = 'sudo useradd -G ubuntu -b /home/ -m ' + userData.username
 					try {
 						const resp = execSync(command)
+					} catch (e) {
+						return deferred.resolve(USER_CREATE_ERROR)
+					}
+
+					// Create .ssh folder and auth file
+					const createFolderCommand = 'sudo mkdir /home/' + userData.username + '/.ssh'
+					const createSSHAuthFileCommand = 'sudo touch /home/' + userData.username + '/.ssh/authorized_keys'
+					const changeOwnerCommand = 'sudo chown ' + userData.username + ':' + runUser + ' -R /home/' + userData.username + '/.ssh'
+					const changeModeCommand = 'sudo chmod 670 -R /home/' + userData.username + '/.ssh'
+					try {
+						let resp = execSync(createFolderCommand)
+						resp = execSync(createSSHAuthFileCommand)
+						resp = execSync(changeOwnerCommand)
+						resp = execSync(changeModeCommand)
 					} catch (e) {
 						return deferred.resolve(USER_CREATE_ERROR)
 					}
@@ -222,6 +239,20 @@ var User = function(db, dbType) {
 								key: sshKey,
 								name: keyName
 							})
+
+							// Writing ssh keys into authorized_keys
+							const authorizedKeysFile = '/home/' + username + '/.ssh/authorized_keys'
+							let keysData = ''
+							for (let j in userList[i].sshKeyList) {
+								keysData = keysData + PREFIX_PERMISSION_STR + userList[i].sshKeyList[j].key.toString() + '\n'
+							}
+							fs.writeFile(authorizedKeysFile, keysData, function (err) {
+								if (err) {
+									return deferred.reject(err)
+								}
+							})
+
+							// Write back to database
 							return db.write(JSON.stringify(data))
 						}
 					}
@@ -241,15 +272,7 @@ var User = function(db, dbType) {
 				.then(function(result) {
 					if (result.existing) {
 						var userData = result.data
-
 						delete userData.password
-						// processing the length of ssh key
-						for (var i in userData.sshKeyList) {
-							if (userData.sshKeyList[i].key.length > 64) {
-								userData.sshKeyList[i].key = userData.sshKeyList[i].key.substring(0,64)
-							}
-						}
-
 						return deferred.resolve({
 							code: USER_OK.code,
 							result: USER_OK.result,
@@ -278,6 +301,19 @@ var User = function(db, dbType) {
 									userList[i].sshKeyList.splice(j, 1)
 								}
 							}
+
+							// Writing ssh keys into authorized_keys
+							const authorizedKeysFile = '/home/' + username + '/.ssh/authorized_keys'
+							let keysData = ''
+							for (let j in userList[i].sshKeyList) {
+								keysData = keysData + PREFIX_PERMISSION_STR + userList[i].sshKeyList[j].key.toString() + '\n'
+							}
+							fs.writeFile(authorizedKeysFile, keysData, function (err) {
+								if (err) {
+									return deferred.reject(err)
+								}
+							})
+
 							return db.write(JSON.stringify(data))
 						}
 					}
@@ -297,15 +333,7 @@ var User = function(db, dbType) {
 				.then(function(result) {
 					if (result.existing) {
 						var userData = result.data
-
 						delete userData.password
-						// processing the length of ssh key
-						for (var i in userData.sshKeyList) {
-							if (userData.sshKeyList[i].key.length > 64) {
-								userData.sshKeyList[i].key = userData.sshKeyList[i].key.substring(0,64)
-							}
-						}
-
 						return deferred.resolve({
 							code: USER_OK.code,
 							result: USER_OK.result,
@@ -324,8 +352,8 @@ var User = function(db, dbType) {
 	}
 }
 
-var init = function(db, dbType) {
-	return new User(db, dbType)
+var init = function(db, dbType, runUser) {
+	return new User(db, dbType, runUser)
 }
 
 

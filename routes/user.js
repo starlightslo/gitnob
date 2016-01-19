@@ -38,7 +38,7 @@ var isLogin = function(req, res, next) {
 				return
 			} else {
 				// Update userData from database
-				var User = UserModule.init(req.db, req.app.settings.config.database.type)
+				var User = UserModule.init(req.db, req.app.settings.config.database.type, req.app.settings.user)
 				User.isUserExisting(userData.username).then(function(result) {
 					req.session.userData = result.data
 					req.log.info({
@@ -138,7 +138,7 @@ var signup = function(req, res, next) {
 		collaborateRepositoryList: [],
 		type: UserModule.USER_TYPE_NORMAL
 	}
-	var User = UserModule.init(req.db, req.app.settings.config.database.type)
+	var User = UserModule.init(req.db, req.app.settings.config.database.type, req.app.settings.user)
 	User.signup(userData).then(function(result) {
 		delete userData.password
 
@@ -207,7 +207,7 @@ var signin = function(req, res, next) {
 		username: username,
 		password: password
 	}
-	var User = UserModule.init(req.db, req.app.settings.config.database.type)
+	var User = UserModule.init(req.db, req.app.settings.config.database.type, req.app.settings.user)
 	User.signin(userData).then(function(result) {
 		if (result.code == UserModule.USER_OK.code) {
 			userData = result.data
@@ -295,7 +295,7 @@ var changePassword = function(req, res, next) {
 	}
 
 	// Check Password
-	var User = UserModule.init(req.db, req.app.settings.config.database.type)
+	var User = UserModule.init(req.db, req.app.settings.config.database.type, req.app.settings.user)
 	User.checkPassword(userData.username, password).then(function(result) {
 		if (result.code == UserModule.USER_OK.code) {
 			return User.changePassword(userData.username, bcrypt.hashSync(newPassword))
@@ -440,7 +440,7 @@ var addSshKey = function(req, res, next) {
 		return
 	}
 
-	var User = UserModule.init(req.db, req.app.settings.config.database.type)
+	var User = UserModule.init(req.db, req.app.settings.config.database.type, req.app.settings.user)
 	User.addSshKey(userData.username, sshKey, keyName).then(function(result) {
 		req.log.info({
 			catalog: 'User',
@@ -503,7 +503,7 @@ var deleteSshKey = function(req, res, next) {
 		return
 	}
 
-	var User = UserModule.init(req.db, req.app.settings.config.database.type)
+	var User = UserModule.init(req.db, req.app.settings.config.database.type, req.app.settings.user)
 	User.deleteSshKey(userData.username, keyName).then(function(result) {
 		req.log.info({
 			catalog: 'User',

@@ -16,7 +16,8 @@
     "bluebird": "3.1.1",
     "nodegit": "0.6.3",
     "rimraf": "2.5.0",
-    "bcryptjs": "2.3.0"
+    "bcryptjs": "2.3.0",
+    "username": "1.0.1"
   },
   "devDependencies": {
     "mocha": "2.3.3"

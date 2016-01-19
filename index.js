@@ -1,10 +1,12 @@
 'use strict'
 
-var config = require('./config')
-var server = require("./modules/server")
+const username = require('username').sync();
+const config = require('./config')
+const server = require("./modules/server")
 
-var app = server().run(config.port, config.secret, config.logConfiguration)
+const app = server().run(config.port, config.secret, config.logConfiguration)
 app.set('config', config)
+app.set('user', username)
 
 // Init Database
 if (config.database.type == 'txt') {
@@ -12,10 +14,10 @@ if (config.database.type == 'txt') {
 }
 
 // Routers
-var dbRouter = require('./routes/db')
-var gitRouter = require('./routes/git')
-var userRouter = require('./routes/user')
-var adminRouter = require('./routes/admin')
+const dbRouter = require('./routes/db')
+const gitRouter = require('./routes/git')
+const userRouter = require('./routes/user')
+const adminRouter = require('./routes/admin')
 
 // Git
 app.get('/api/git/repository', [dbRouter.init, userRouter.isLogin, gitRouter.list])

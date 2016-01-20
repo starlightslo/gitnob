@@ -10,7 +10,8 @@ var listRepository = function(req, res, next) {
 	var userData = req.session.userData
 
 	// List all repositories
-	GitModule.listRepo(req.app.settings.config.gitPath).then(function(result) {
+	var Git = GitModule.init(req.db, req.app.settings.config.database.type, req.app.settings.user)
+	Git.listRepo(req.app.settings.config.gitPath).then(function(result) {
 		var resp = {
 			code: 200,
 			result: 'OK',
@@ -412,9 +413,10 @@ var getRepository = function(req, res, next) {
 	var collaboratorList = []
 
 	// Get the owner of repository
-	GitModule.getOwner(req.db, req.app.settings.config.database.type, repository).then(function(result) {
+	var Git = GitModule.init(req.db, req.app.settings.config.database.type, req.app.settings.user)
+	Git.getOwner(repository).then(function(result) {
 		owner = result.data
-		return GitModule.listCollaborator(req.db, req.app.settings.config.database.type, repository)
+		return Git.listCollaborator(repository)
 	}, function(err) {
 		req.log.error({
 			catalog: 'Admin',
@@ -434,7 +436,7 @@ var getRepository = function(req, res, next) {
 	// Get collaborator list
 	.then(function(result) {
 		collaboratorList = result.data
-		return GitModule.open(repositoryPath)
+		return Git.open(repositoryPath)
 	}, function(err) {
 		req.log.error({
 			catalog: 'Admin',
@@ -455,7 +457,7 @@ var getRepository = function(req, res, next) {
 	.then(function(repository) {
 		repo = repository
 		// Get all branch
-		return GitModule.listBranch(repository)
+		return Git.listBranch(repository)
 	}, function(err) {
 		req.log.error({
 			catalog: 'Admin',
@@ -476,7 +478,7 @@ var getRepository = function(req, res, next) {
 	.then(function(branchArray) {
 		if (!branchArray) return
 		branchList = branchArray
-		return GitModule.listTag(repo)
+		return Git.listTag(repo)
 	})
 
 	// Result of tag
@@ -492,10 +494,10 @@ var getRepository = function(req, res, next) {
 		defaultBranch = reference.name()
 		if (branch) {
 			// Use branch of user's selected
-			return GitModule.listCommit(repo, branch)
+			return Git.listCommit(repo, branch)
 		} else {
 			// Use default branch
-			return GitModule.listCommit(repo, defaultBranch)
+			return Git.listCommit(repo, defaultBranch)
 		}
 	})
 
@@ -605,7 +607,8 @@ var addRepositoryOwner = function(req, res, next) {
 	}
 
 	// Add repository owner
-	GitModule.addOwner(req.db, req.app.settings.config.database.type, repositoryName, username).then(function(result) {
+	var Git = GitModule.init(req.db, req.app.settings.config.database.type, req.app.settings.user)
+	Git.addOwner(repositoryPath, repositoryName, username).then(function(result) {
 		req.log.info({
 			catalog: 'Admin',
 			action: 'Add Repository Owner',
@@ -684,7 +687,8 @@ var destroyRepository = function(req, res, next) {
 	}
 
 	// Destory the repository
-	GitModule.destroy(repositoryPath, repositoryName, req.db, req.app.settings.config.database.type).then(function(result) {
+	var Git = GitModule.init(req.db, req.app.settings.config.database.type, req.app.settings.user)
+	Git.destroy(repositoryPath, repositoryName).then(function(result) {
 		req.log.info({
 			catalog: 'Admin',
 			action: 'Destory Repository',
@@ -767,7 +771,8 @@ var addCollaborator = function(req, res, next) {
 	}
 
 	// Add collaborator
-	GitModule.addCollaborator(req.db, req.app.settings.config.database.type, repository, collaboratorName).then(function(result) {
+	var Git = GitModule.init(req.db, req.app.settings.config.database.type, req.app.settings.user)
+	Git.addCollaborator(repository, collaboratorName).then(function(result) {
 		req.log.info({
 			catalog: 'Admin',
 			action: 'Add Collaborator',
@@ -806,7 +811,8 @@ var deleteCollaborator = function(req, res, next) {
 	var repositoryPath = path.join(req.app.settings.config.gitPath, repository)
 
 	// Delete collaborator
-	GitModule.deleteCollaborator(req.db, req.app.settings.config.database.type, repository, collaboratorName).then(function(result) {
+	var Git = GitModule.init(req.db, req.app.settings.config.database.type, req.app.settings.user)
+	Git.deleteCollaborator(repository, collaboratorName).then(function(result) {
 		req.log.info({
 			catalog: 'Admin',
 			action: 'Delete Collaborator',

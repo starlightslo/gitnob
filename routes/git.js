@@ -55,7 +55,8 @@ var create = function(req, res, next) {
 	}
 
 	// Creates an empty Git repository
-	GitModule.init(userData.username, repositoryPath, repositoryName, req.db, req.app.settings.config.database.type).then(function(result) {
+	var Git = GitModule.init(req.db, req.app.settings.config.database.type, req.app.settings.user)
+	Git.init(userData.username, repositoryPath, repositoryName).then(function(result) {
 		req.log.info({
 			catalog: 'Git',
 			action: 'Create',
@@ -147,7 +148,8 @@ var destroy = function(req, res, next) {
 	}
 
 	// Destory the repository
-	GitModule.destroy(repositoryPath, repositoryName, req.db, req.app.settings.config.database.type).then(function(result) {
+	var Git = GitModule.init(req.db, req.app.settings.config.database.type, req.app.settings.user)
+	Git.destroy(repositoryPath, repositoryName).then(function(result) {
 		req.log.info({
 			catalog: 'Git',
 			action: 'Destory',
@@ -238,10 +240,11 @@ var get = function(req, res, next) {
 	var defaultBranch = ''
 
 	// List all repositores
-	GitModule.open(repositoryPath).then(function(repository) {
+	var Git = GitModule.init(req.db, req.app.settings.config.database.type, req.app.settings.user)
+	Git.open(repositoryPath).then(function(repository) {
 		repo = repository
 		// Get all branch
-		return GitModule.listBranch(repository)
+		return Git.listBranch(repository)
 	}, function(err) {
 		req.log.error({
 			catalog: 'Git',
@@ -262,7 +265,7 @@ var get = function(req, res, next) {
 	.then(function(branchArray) {
 		if (!branchArray) return
 		branchList = branchArray
-		return GitModule.listTag(repo)
+		return Git.listTag(repo)
 	})
 
 	// Result of tag
@@ -278,10 +281,10 @@ var get = function(req, res, next) {
 		defaultBranch = reference.name()
 		if (branch) {
 			// Use branch of user's selected
-			return GitModule.listCommit(repo, branch)
+			return Git.listCommit(repo, branch)
 		} else {
 			// Use default branch
-			return GitModule.listCommit(repo, defaultBranch)
+			return Git.listCommit(repo, defaultBranch)
 		}
 	})
 
@@ -427,7 +430,8 @@ var addCollaborator = function(req, res, next) {
 	}
 
 	// Add collaborator
-	GitModule.addCollaborator(req.db, req.app.settings.config.database.type, repository, collaboratorName).then(function(result) {
+	var Git = GitModule.init(req.db, req.app.settings.config.database.type, req.app.settings.user)
+	Git.addCollaborator(repository, collaboratorName).then(function(result) {
 		req.log.info({
 			catalog: 'Git',
 			action: 'Add Collaborator',
@@ -483,7 +487,8 @@ var deleteCollaborator = function(req, res, next) {
 	}
 
 	// Delete collaborator
-	GitModule.deleteCollaborator(req.db, req.app.settings.config.database.type, repository, collaboratorName).then(function(result) {
+	var Git = GitModule.init(req.db, req.app.settings.config.database.type, req.app.settings.user)
+	Git.deleteCollaborator(repository, collaboratorName).then(function(result) {
 		req.log.info({
 			catalog: 'Git',
 			action: 'Delete Collaborator',
@@ -537,7 +542,8 @@ var listCollaborator = function(req, res, next) {
 	}
 
 	// Check collaborator name
-	GitModule.listCollaborator(req.db, req.app.settings.config.database.type, repository).then(function(result) {
+	var Git = GitModule.init(req.db, req.app.settings.config.database.type, req.app.settings.user)
+	Git.listCollaborator(repository).then(function(result) {
 		req.log.info({
 			catalog: 'Git',
 			action: 'List Collaborator',

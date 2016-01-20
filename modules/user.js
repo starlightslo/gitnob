@@ -3,6 +3,7 @@
 const bcrypt = require('bcryptjs')
 const Promise = require('bluebird')
 const fs = require('fs')
+const execSync = require('child_process').execSync
 
 // Response status
 const USER_OK = {code: 200, result: 'OK'}
@@ -11,6 +12,9 @@ const USER_NOT_FOUND = {code: 1001, result: 'User not found.'}
 const USER_WITH_INVALIDE_PASSWORD = {code: 1002, result: 'User with invalide password.'}
 const USER_HAS_SAME_KEY_NAME = {code: 1003, result: 'There is a key with the same name.'}
 const USER_CREATE_ERROR = {code: 1100, result: 'Create user failed.'}
+const USER_DELETE_ERROR = {code: 1101, result: 'Delete user failed.'}
+const USER_SSH_CREATE_ERROR = {code: 1110, result: 'Create user ssh failed.'}
+const USER_SSH_DELETE_ERROR = {code: 1111, result: 'Delete user ssh failed.'}
 
 // User Type
 const USER_TYPE_BLOCK = -1;
@@ -30,8 +34,7 @@ var User = function(db, dbType, runUser) {
 					return deferred.resolve(USER_EXISTING)
 				} else {
 					// Create user in system
-					var execSync = require('child_process').execSync
-					const command = 'sudo useradd -G ubuntu -b /home/ -m ' + userData.username
+					const command = 'sudo useradd -G ' + runUser + ' -b /home/ -m ' + userData.username
 					try {
 						const resp = execSync(command)
 					} catch (e) {
@@ -41,13 +44,15 @@ var User = function(db, dbType, runUser) {
 					// Create .ssh folder and auth file
 					const createFolderCommand = 'sudo mkdir /home/' + userData.username + '/.ssh'
 					const createSSHAuthFileCommand = 'sudo touch /home/' + userData.username + '/.ssh/authorized_keys'
-					const changeOwnerCommand = 'sudo chown ' + userData.username + ':' + runUser + ' -R /home/' + userData.username + '/.ssh'
-					const changeModeCommand = 'sudo chmod 670 -R /home/' + userData.username + '/.ssh'
+					const changeOwnerCommand = 'sudo chown -R ' + userData.username + ':' + runUser + ' /home/' + userData.username + '/.ssh'
+					const changeFolderModeCommand = 'sudo chmod -R 700 /home/' + userData.username + '/.ssh'
+					const changeFileModeCommand = 'sudo chmod -R 600 /home/' + userData.username + '/.ssh/authorized_keys'
 					try {
 						let resp = execSync(createFolderCommand)
 						resp = execSync(createSSHAuthFileCommand)
 						resp = execSync(changeOwnerCommand)
-						resp = execSync(changeModeCommand)
+						resp = execSync(changeFolderModeCommand)
+						resp = execSync(changeFileModeCommand)
 					} catch (e) {
 						return deferred.resolve(USER_CREATE_ERROR)
 					}
@@ -164,6 +169,16 @@ var User = function(db, dbType, runUser) {
 
 				// The result of write
 				.then(function(result) {
+					// Delete user and folder
+					const deleteUserCommand = 'sudo deluser ' + username
+					const deleteFolderCommand = 'sudo rm -rf /home/' + username
+					try {
+						let resp = execSync(deleteUserCommand)
+						resp = execSync(deleteFolderCommand)
+					} catch (e) {
+						return deferred.resolve(USER_DELETE_ERROR)
+					}
+
 					return deferred.resolve(USER_OK);
 				}, function(err) {
 					return deferred.reject(err);
@@ -240,6 +255,16 @@ var User = function(db, dbType, runUser) {
 								name: keyName
 							})
 
+							// Change the permission of authorized_keys
+							const changeFolderModeCommand = 'sudo chmod -R 770 /home/' + username + '/.ssh'
+							const changeFileModeCommand = 'sudo chmod -R 670 /home/' + username + '/.ssh/authorized_keys'
+							try {
+								let resp = execSync(changeFolderModeCommand)
+								resp = execSync(changeFileModeCommand)
+							} catch (e) {
+								return deferred.resolve(USER_SSH_CREATE_ERROR)
+							}
+
 							// Writing ssh keys into authorized_keys
 							const authorizedKeysFile = '/home/' + username + '/.ssh/authorized_keys'
 							let keysData = ''
@@ -249,6 +274,16 @@ var User = function(db, dbType, runUser) {
 							fs.writeFile(authorizedKeysFile, keysData, function (err) {
 								if (err) {
 									return deferred.reject(err)
+								}
+
+								// Change the permission back
+								const changeBackFolderModeCommand = 'sudo chmod -R 700 /home/' + username + '/.ssh'
+								const changeBackFileModeCommand = 'sudo chmod -R 600 /home/' + username + '/.ssh/authorized_keys'
+								try {
+									let resp = execSync(changeBackFolderModeCommand)
+									resp = execSync(changeBackFileModeCommand)
+								} catch (e) {
+									return deferred.resolve(USER_SSH_CREATE_ERROR)
 								}
 							})
 
@@ -302,6 +337,16 @@ var User = function(db, dbType, runUser) {
 								}
 							}
 
+							// Change the permission of authorized_keys
+							const changeFolderModeCommand = 'sudo chmod -R 770 /home/' + username + '/.ssh'
+							const changeFileModeCommand = 'sudo chmod -R 670 /home/' + username + '/.ssh/authorized_keys'
+							try {
+								let resp = execSync(changeFolderModeCommand)
+								resp = execSync(changeFileModeCommand)
+							} catch (e) {
+								return deferred.resolve(USER_SSH_DELETE_ERROR)
+							}
+
 							// Writing ssh keys into authorized_keys
 							const authorizedKeysFile = '/home/' + username + '/.ssh/authorized_keys'
 							let keysData = ''
@@ -311,6 +356,17 @@ var User = function(db, dbType, runUser) {
 							fs.writeFile(authorizedKeysFile, keysData, function (err) {
 								if (err) {
 									return deferred.reject(err)
+								}
+
+
+								// Change the permission back
+								const changeBackFolderModeCommand = 'sudo chmod -R 700 /home/' + username + '/.ssh'
+								const changeBackFileModeCommand = 'sudo chmod -R 600 /home/' + username + '/.ssh/authorized_keys'
+								try {
+									let resp = execSync(changeBackFolderModeCommand)
+									resp = execSync(changeBackFileModeCommand)
+								} catch (e) {
+									return deferred.resolve(USER_SSH_DELETE_ERROR)
 								}
 							})
 

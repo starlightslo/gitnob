@@ -109,6 +109,14 @@ var MyGit = function(db, dbType, runUser) {
 
 			// The result of write
 			.then(function(result) {
+				// Should change the permission of repository before delete the repository
+				const changeGroupCommand = 'sudo chown -R ' + runUser + ':' + repositoryName + ' ' + repositoryPath
+				try {
+					let resp = execSync(changeGroupCommand)
+				} catch (e) {
+					return deferred.resolve(GIT_DELETE_ERROR)
+				}
+
 				// Delete repository directory
 				return delRepo(repositoryPath)
 			}, function(err) {

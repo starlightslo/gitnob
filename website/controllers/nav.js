@@ -3,6 +3,23 @@ var myApp = angular.module('myApp')
 myApp.controller('NavController', function($rootScope, $scope, $http, $location, $routeParams, UserService, ViewService) {
 	$scope.username = ''
 
+	// Toggle feature
+	$scope.toggleUserSignup = false
+
+	$scope.init = function() {
+		// Get toggle feature
+		$http({
+			method: 'GET',
+			url: '/api/toggles'
+		}).then(function successCallback(response) {
+			if (response.data.data.userSignup) {
+				$scope.toggleUserSignup = response.data.data.userSignup
+			}
+		}, function errorCallback(error) {
+			
+		})
+	}
+
 	$scope.isLogin = function() {
 		return UserService.isLogin()
 	}

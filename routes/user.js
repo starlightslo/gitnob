@@ -269,7 +269,7 @@ var changePassword = function(req, res, next) {
 	}
 
 	// Check special characters
-	var regularExpression = /^[a-zA-Z0-9!@#$%^&*]{6,16}$/
+	var regularExpression = /^[a-zA-Z0-9!@#$%^&*]/
 	if(err.length == 0 && !regularExpression.test(password)) {
 		err = 'The password should not contain some special character.'
 	}

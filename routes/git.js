@@ -219,7 +219,7 @@ var get = function(req, res, next) {
 	var repositoryPath = path.join(gitPath, repository)
 
 	// Check permission
-	if (userData.repositoryList.indexOf(repository) < 0) {
+	if (userData.repositoryList.indexOf(repository) < 0 && userData.collaborateRepositoryList.indexOf(repository) < 0) {
 		req.log.info({
 			catalog: 'Git',
 			action: 'Get',
@@ -415,7 +415,7 @@ var addCollaborator = function(req, res, next) {
 	}
 
 	// Check permission
-	if (userData.repositoryList.indexOf(repository) < 0) {
+	if (userData.repositoryList.indexOf(repository) < 0 && userData.collaborateRepositoryList.indexOf(repository) < 0) {
 		req.log.info({
 			catalog: 'Git',
 			action: 'Add Collaborator',
@@ -472,7 +472,7 @@ var deleteCollaborator = function(req, res, next) {
 	var repositoryPath = path.join(req.app.settings.config.gitPath, repository)
 
 	// Check permission
-	if (userData.repositoryList.indexOf(repository) < 0) {
+	if (userData.repositoryList.indexOf(repository) < 0 && userData.collaborateRepositoryList.indexOf(repository) < 0) {
 		req.log.info({
 			catalog: 'Git',
 			action: 'Delete Collaborator',
@@ -528,7 +528,7 @@ var listCollaborator = function(req, res, next) {
 	var repositoryPath = path.join(req.app.settings.config.gitPath, repository)
 
 	// Check permission
-	if (userData.repositoryList.indexOf(repository) < 0) {
+	if (userData.repositoryList.indexOf(repository) < 0 && userData.collaborateRepositoryList.indexOf(repository) < 0) {
 		req.log.info({
 			catalog: 'Git',
 			action: 'List Collaborator',
@@ -575,6 +575,134 @@ var listCollaborator = function(req, res, next) {
 	})
 }
 
+var listCollaborateRepository = function(req, res, next) {
+	var userData = req.session.userData
+	var onwerList = []
+	var collaboratorList = []
+
+	var Git = GitModule.init(req.db, req.app.settings.config.database.type, req.app.settings.user)
+	Git.getOwners(userData.collaborateRepositoryList).then(function(result) {
+		onwerList = result.data
+		return Git.listCollaborators(userData.collaborateRepositoryList)
+	}, function(err) {
+		req.log.error({
+			catalog: 'Git',
+			action: 'List Collaborate Repository',
+			req: {
+				userData: userData
+			},
+			error: err
+		})
+		res.status(500).send('Server Error: ' + err)
+		return
+	})
+
+	// The result of list collaborators
+	.then(function(result) {
+		collaboratorList = result.data
+		for (let i in collaboratorList) {
+			for (let j in onwerList) {
+				if (onwerList[j].name === collaboratorList[i].name) {
+					collaboratorList[i].owner = onwerList[j].owner
+				}
+			}
+		}
+
+		let resp = {
+			code: 200,
+			result: 'OK',
+			data: collaboratorList
+		}
+
+		req.log.info({
+			catalog: 'Git',
+			action: 'List Collaborate Repository',
+			req: {
+				userData: userData,
+				onwerList: onwerList,
+				collaboratorList: collaboratorList
+			},
+			result: resp
+		})
+		res.json(resp)
+		res.end()
+		return
+	}, function(err) {
+		req.log.error({
+			catalog: 'Git',
+			action: 'List Collaborate Repository',
+			req: {
+				userData: userData
+			},
+			error: err
+		})
+		res.status(500).send('Server Error: ' + err)
+		return
+	})
+}
+
+var deleteCollaborateRepository = function(req, res, next) {
+	var userData = req.session.userData
+	var repository = req.params.repository
+
+	// Check value of input
+	var err = ''
+	if (!repository) {
+		err = 'The input data is empty.'
+	}
+
+	// Check special characters
+	var regularExpression = /^[a-zA-Z0-9_-]{1,}$/
+	if(err.length == 0 && !regularExpression.test(repository)) {
+		err = 'Should not contain special character.'
+	}
+
+	// Check error
+	if (err.length > 0) {
+		req.log.error({
+			catalog: 'Git',
+			action: 'Destory',
+			req: {
+				userData: userData,
+				repository: repository
+			},
+			error: err
+		})
+		res.status(400).send(err)
+		res.end()
+		return
+	}
+
+	// Delete collaborator
+	var Git = GitModule.init(req.db, req.app.settings.config.database.type, req.app.settings.user)
+	Git.deleteCollaborator(repository, userData.username).then(function(result) {
+		req.log.info({
+			catalog: 'Git',
+			action: 'Delete Collaborate Repository',
+			req: {
+				userData: userData,
+				repository: repository
+			},
+			result: result
+		})
+		res.json(result)
+		res.end()
+		return
+	}, function(err) {
+		req.log.error({
+			catalog: 'Git',
+			action: 'Delete Collaborate Repository',
+			req: {
+				userData: userData,
+				repository: repository
+			},
+			error: err
+		})
+		res.status(500).send('Server Error: ' + err)
+		return
+	})
+}
+
 module.exports = {
 	create: create,
 	destroy: destroy,
@@ -582,5 +710,7 @@ module.exports = {
 	get: get,
 	addCollaborator: addCollaborator,
 	deleteCollaborator: deleteCollaborator,
-	listCollaborator: listCollaborator
+	listCollaborator: listCollaborator,
+	listCollaborateRepository: listCollaborateRepository,
+	deleteCollaborateRepository: deleteCollaborateRepository
 }

@@ -12,7 +12,7 @@
 				<tr>
 					<th class="col-sm-2">Repository</th>
 					<th class="col-sm-10">Collaborator</th>
-					<th class="col-sm-2">Delete</th>
+					<th class="col-sm-2 content-center">Delete</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -23,8 +23,43 @@
 							{{collaborator}}
 						</span>
 					</td>
-					<td style="text-align: center">
+					<td class="content-center">
 						<a href><span class="glyphicon glyphicon-trash" aria-hidden="true" confirmed-click="deleteRepository(repository.name)" ng-confirm-click="Are you sure want to delete {{repository.name}}?"></span></a>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+</div>
+<hr />
+<div ng-init="getCollaborateRepositories()">
+	<div class="content-title">
+		<h2 class="sub-header">Collaborate Repositories</h2>
+		<div class="content-title-right">
+			<input type="text" class="form-control" placeholder="Search..." ng-model="co_search.name">
+		</div>
+	</div>
+	<div class="content table-responsive">
+		<table class="table table-hover">
+			<thead>
+				<tr>
+					<th class="col-sm-2">Repository</th>
+					<th class="col-sm-2 content-center">Owner</th>
+					<th class="col-sm-8">Collaborator</th>
+					<th class="col-sm-2 content-center">Delete</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr ng-repeat="collaborateRepository in collaborateRepositoryList | orderBy:'name' | filter:co_search">
+					<td><a href="#/repository/{{collaborateRepository.name}}">{{collaborateRepository.name}}</a></td>
+					<td class="content-center"><span class="label label-primary">aa{{collaborateRepository.owner}}</span>
+					<td>
+						<span class="label label-info" ng-repeat="collaborator in collaborateRepository.collaboratorList">
+							{{collaborator}}
+						</span>
+					</td>
+					<td class="content-center">
+						<a href><span class="glyphicon glyphicon-trash" aria-hidden="true" confirmed-click="deleteCollaborateRepository(collaborateRepository.name)" ng-confirm-click="Are you sure want to leave {{collaborateRepository.name}}?"></span></a>
 					</td>
 				</tr>
 			</tbody>

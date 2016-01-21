@@ -39,6 +39,8 @@ app.delete('/api/git/repository/:repository/collaborator/:collaborator', [dbRout
 app.get('/api/git/repository/:repository/:ref/:head/:branch', [dbRouter.init, userRouter.isLogin, gitRouter.get])
 app.put('/api/git/repository/create', [dbRouter.init, userRouter.isLogin, gitRouter.create])
 app.delete('/api/git/repository/:repository', [dbRouter.init, userRouter.isLogin, gitRouter.destroy])
+app.get('/api/git/co_repository', [dbRouter.init, userRouter.isLogin, gitRouter.listCollaborateRepository])
+app.delete('/api/git/co_repository/:repository', [dbRouter.init, userRouter.isLogin, gitRouter.deleteCollaborateRepository])
 
 // User
 app.get('/api/user', [dbRouter.init, userRouter.isLogin, userRouter.user])

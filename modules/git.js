@@ -307,6 +307,38 @@ var MyGit = function(db, dbType, runUser) {
 			}
 			return deferred.promise
 		},
+		listCollaborators: function(repositoryList) {
+			var deferred = Promise.defer()
+
+			if (dbType == 'txt') {
+				// Read user data
+				db.read().then(function(data) {
+					var userList = data.userList
+					var collaboratorsList = []
+					for (let i in repositoryList) {
+						var collaboratorList = []
+						for (let j in userList) {
+							var index = userList[j].collaborateRepositoryList.indexOf(repositoryList[i])
+							if (index > -1) {
+								collaboratorList.push(userList[j].username)
+							}
+						}
+						collaboratorsList.push({
+							name: repositoryList[i],
+							collaboratorList: collaboratorList
+						})
+					}
+					return deferred.resolve({
+						code: GIT_OK.code,
+						result: GIT_OK.result,
+						data: collaboratorsList
+					})
+				}, function(err) {
+					return deferred.reject(err)
+				})
+			}
+			return deferred.promise
+		},
 		getOwner: function(repository) {
 			var deferred = Promise.defer()
 
@@ -327,6 +359,40 @@ var MyGit = function(db, dbType, runUser) {
 						code: GIT_OK.code,
 						result: GIT_OK.result,
 						data: ''
+					})
+				}, function(err) {
+					return deferred.reject(err)
+				})
+			}
+			return deferred.promise
+		},
+		getOwners: function(repositoryList) {
+			var deferred = Promise.defer()
+
+			if (dbType == 'txt') {
+				// Read user data
+				db.read().then(function(data) {
+					var userList = data.userList
+					var ownerList = []
+					for (var i in repositoryList) {
+						var owner = ''
+						for (var j in userList) {
+							if (userList[j].repositoryList.indexOf(repositoryList[i]) > -1) {
+								owner = userList[j].username
+							}
+						}
+
+						// Add to owner list
+						ownerList.push({
+							owner: owner,
+							name: repositoryList[i]
+						})
+					}
+					
+					return deferred.resolve({
+						code: GIT_OK.code,
+						result: GIT_OK.result,
+						data: ownerList
 					})
 				}, function(err) {
 					return deferred.reject(err)

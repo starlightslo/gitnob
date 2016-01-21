@@ -388,6 +388,42 @@ myApp.controller('MainController', function($rootScope, $scope, $http, $location
 		})
 	}
 
+	$scope.getCollaborateRepositories = function() {
+		$http({
+			method: 'GET',
+			url: '/api/git/co_repository'
+		}).then(function successCallback(response) {
+			console.log(response)
+			if (response.status == 200) {
+				if (response.data.code == 200) {
+					$scope.collaborateRepositoryList = response.data.data
+				} else {
+					$scope.collaborateRepositoryList = []
+				}
+			}
+		}, function errorCallback(error) {
+			console.log(error)
+			$location.path("/")
+		})
+	}
+
+	$scope.deleteCollaborateRepository = function(repository) {
+		$http({
+			method: 'DELETE',
+			url: '/api/git/co_repository/' + repository
+		}).then(function successCallback(response) {
+			console.log(response)
+			if (response.status == 200) {
+				if (response.data.code == 200) {
+					$scope.getCollaborateRepositories()
+				}
+			}
+		}, function errorCallback(error) {
+			console.log(error)
+			$location.path("/")
+		})
+	}
+
 	$scope.redirectTo = function(path) {
 		console.log(path)
 		$location.path(path)

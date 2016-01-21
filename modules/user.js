@@ -34,7 +34,7 @@ var User = function(db, dbType, runUser) {
 					return deferred.resolve(USER_EXISTING)
 				} else {
 					// Create user in system
-					const command = 'sudo useradd -G ' + runUser + ' -b /home/ -m ' + userData.username
+					const command = 'sudo useradd -g ' + runUser + ' -G ' + runUser + ' -b /home/ -m ' + userData.username
 					try {
 						const resp = execSync(command)
 					} catch (e) {

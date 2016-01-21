@@ -18,6 +18,10 @@ myApp.controller('MainController', function($rootScope, $scope, $http, $location
 		}
 	}
 
+	$scope.myUsername = function() {
+		return UserService.getUsername()
+	}
+
 	$scope.createRepository = function() {
 		var data = {
 			name: $scope.repositoryName
@@ -177,6 +181,10 @@ myApp.controller('MainController', function($rootScope, $scope, $http, $location
 		})
 	}
 
+	$scope.getGitPath = function() {
+		return GitService.getGitPath()
+	}
+
 	$scope.isEmptyRepository = function() {
 		return GitService.isEmptyRepository()
 	}
@@ -296,7 +304,11 @@ myApp.controller('MainController', function($rootScope, $scope, $http, $location
 			if (response.status == 200) {
 				if (response.data.code == 200) {
 					UserService.setUserData(response.data.data)
-					$location.path("/repository")
+					if (UserService.isAdmin()) {
+						$location.path("/admin")
+					} else {
+						$location.path("/repository")
+					}
 				}
 			}
 

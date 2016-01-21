@@ -45,6 +45,10 @@ myApp.controller('AdminController', function($rootScope, $scope, $http, $locatio
 		}
 	}
 
+	$scope.myUsername = function() {
+		return UserService.getUsername()
+	}
+
 	$scope.getRepositories = function() {
 		$scope.repositoryList = []
 		$http({
@@ -185,6 +189,10 @@ myApp.controller('AdminController', function($rootScope, $scope, $http, $locatio
 			console.log(error)
 			$location.path("/")
 		})
+	}
+
+	$scope.getGitPath = function() {
+		return GitService.getGitPath()
 	}
 
 	$scope.setOwner = function(newOwner) {

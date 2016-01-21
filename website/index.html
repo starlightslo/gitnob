@@ -16,10 +16,10 @@
 				</div>
 				<div id="navbar" class="navbar-collapse collapse">
 					<ul class="nav navbar-nav" style="display: none" ng-init="updateViewClass()" ng-style="navbarClass">
-						<li ng-class="repositoryClass"><a href="#/repository" ng-click="setView(3)">Repositories</a></li>
-						<li ng-class="sshkeyClass"><a href="#/sshkey" ng-click="setView(4)">SSH Key</a></li>
-						<li ng-class="settingsClass"><a href="#/settings" ng-click="setView(5)">Settings</a></li>
+						<li ng-class="repositoryClass" ng-if="!isAdmin()"><a href="#/repository" ng-click="setView(3)">Repositories</a></li>
+						<li ng-class="sshkeyClass" ng-if="!isAdmin()"><a href="#/sshkey" ng-click="setView(4)">SSH Key</a></li>
 						<li ng-class="adminClass" ng-if="isAdmin()"><a href="#/admin" ng-click="setView(5)">Admin</a></li>
+						<li ng-class="settingsClass"><a href="#/settings" ng-click="setView(5)">Settings</a></li>
 					</ul>
 					<ul class="nav navbar-nav navbar-right" style="display: none" ng-init="updateViewClass()" ng-style="loginNavbarClass">
 						<li ng-class="signinClass"><a href="#/signin" ng-click="setView(1)">Sing In</a></li>

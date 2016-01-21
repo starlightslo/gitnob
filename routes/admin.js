@@ -404,7 +404,8 @@ var getRepository = function(req, res, next) {
 	if (ref && head && branch) {
 		branch = ref + '/' + head + '/' + branch
 	}
-	var repositoryPath = path.join(req.app.settings.config.gitPath, repository)
+	var gitPath = req.app.settings.config.gitPath
+	var repositoryPath = path.join(gitPath, repository)
 	var owner = ''
 	var repo = null
 	var branchList = []
@@ -530,6 +531,7 @@ var getRepository = function(req, res, next) {
 			code: 200,
 			result: 'OK',
 			data: {
+				gitPath: gitPath,
 				owner: owner,
 				defaultBranch: defaultBranch,
 				branchList: branchList,

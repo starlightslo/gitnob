@@ -1,0 +1,114 @@
+<div ng-controller="AdminController">
+	<!-- Subview Navbar -->
+	<ul class="nav nav-tabs">
+		<li role="presentation" class="active"><a href="#/admin/repository">Repositories</a></li>
+		<li role="presentation" class=""><a href="#/admin/user">Users</a></li>
+	</ul>
+
+	<!-- Content -->
+	<div ng-controller="AdminController" ng-init="getRepository()">
+		<div class="content-title">
+			<h2 class="sub-header">{{getCurrentRepositoryName()}} (<a href="#/admin/user/{{getOwner()}}">{{getOwner()}}</a>)</h2>
+			<div class="content-title-right">
+				<div class="dropdown" ng-init="getUsers()">
+					<button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+						:{{newOwner}}
+						<span class="caret"></span>
+					</button>
+					<ul class="dropdown-menu" aria-labelledby="dropdownMenu4">
+						<li ng-repeat="user in userList">
+							<a href ng-click="setOwner(user.username)">{{user.username}}</a>
+						</li>
+					</ul>
+				</div>
+				<button type="button" class="btn btn-success" style="margin-left: 10px" ng-click="changeOwner()">Change Owner</button>
+			</div>
+		</div>
+		<div ng-if="isEmptyRepository()">
+			<hr />
+			<h4><strong>Push an existing repository from the command line</strong></h4>
+			<pre>git remote add origin {{myUsername()}}@{{getDomain()}}:{{getGitPath()}}/{{getCurrentRepositoryName()}}
+git push -u origin master</pre>
+		</div>
+		<div ng-if="!isEmptyRepository()">
+			<div class="content table-responsive">
+				<table class="table table-bordered">
+					<tbody>
+						<tr style="text-align: center">
+							<td class="col-sm-3 btn-default btn-sm">
+								<a href ng-click="setTab('repository')">{{getCommitNum()}} commits</a>
+							</td>
+							<td class="col-sm-3 btn-default btn-sm">
+								<a href>{{getBranchNum()}} branches</a>
+							</td>
+							<td class="col-sm-3 btn-default btn-sm">
+								<a href ng-click="setTab('releases')">{{getTagNum()}} releases</a>
+							</td>
+							<td class="col-sm-3 btn-default btn-sm">
+								<a href ng-click="setTab('controbutor')">{{getCollaboratorNum()}} contributor</a>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+
+			<div ng-if="isRepositoryTab()">
+				<div class="dropdown">
+					<button class="btn btn-default btn-sm dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+						Branch: <strong>{{getCurrentBranch()}}</strong>
+						<span class="caret"></span>
+					</button>
+					<ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+						<li ng-repeat="branch in getBranchs()">
+							<a href="#/admin/repository/{{getCurrentRepositoryName()}}/{{branch}}">{{branch}}</a>
+						</li>
+					</ul>
+				</div>
+				<div class="content table-responsive">
+					<table class="table table-hover">
+						<tbody>
+							<tr ng-repeat="commit in getCommits()" ng-init="showMoreInfo=[]">
+								<td class="col-sm-10">
+									<strong>{{commit.summary}}</strong><a href ng-show="commit.hasMoreInfo" ng-click="showMoreInfo[$index] ? showMoreInfo[$index]=false : showMoreInfo[$index]=true" class="more-info">...</a><br />
+									<span class="sub-content"><a href="mailto:{{commit.authorEmail}}">{{commit.author}}</a> committed at {{commit.date}}</span><br />
+									<pre class="sub-content" ng-show="showMoreInfo[{{$index}}]" ng-init="showMoreInfo.push(false)" style="white-space: pre">{{commit.message}}</pre>
+								</td>
+								<td class="col-sm-2" style="text-align: center">
+									<button type="button" class="btn btn-sm btn-info">{{commit.id.substring(0,7)}}</button>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+			<div ng-if="isContributorTab()">
+				<div class="content-title">
+					<div class="content-title-right" ng-controller="AdminController" ng-init="errorMessage='username...'">
+						<input type="text" class="form-control" placeholder="{{errorMessage}}" ng-model="newCollaborator" ng-class="newCollaboratorClass">
+						<button type="button" class="btn btn-success" style="margin-left: 10px" ng-click="addCollaborator()">Add Collaborator</button>
+					</div>
+				</div>
+				<div class="content table-responsive">
+					<table class="table table-hover">
+						<thead>
+							<tr>
+								<th class="col-sm-10">Collaborator Username</th>
+								<th class="col-sm-2 content-center">Delete</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr ng-repeat="collaborator in getCollaborator()">
+								<td>
+									<a href="#/admin/user/{{collaborator}}">{{collaborator}}</a>
+								</td>
+								<td class="content-center">
+									<a href><span class="glyphicon glyphicon-trash" aria-hidden="true" confirmed-click="deleteCollaborator(collaborator)" ng-confirm-click="Are you sure want to delete {{collaborator}}?"></span></a>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

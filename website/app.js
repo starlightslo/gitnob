@@ -318,7 +318,6 @@ myApp.directive('ngCheckUpdatePassword', [
 								scope.isNotMatch = false
 							}
 						}
-						console.log(scope.errorMessage)
 					})
 				})
 			}

@@ -1,6 +1,8 @@
 var myApp = angular.module('myApp')
 
 myApp.factory('UserService', function($rootScope, $http) {
+	const DEBUG = false
+
 	// View Define
 	var USER_TYPE_BLOCK = -1
 	var USER_TYPE_NORMAL = 2
@@ -49,12 +51,12 @@ myApp.factory('UserService', function($rootScope, $http) {
 				method: 'GET',
 				url: '/api/user/'
 			}).then(function successCallback(response) {
-				console.log(response)
+				if (DEBUG) console.log(response)
 				if (response.status == 200) {
 					setUserData(response.data)
 				}
 			}, function errorCallback(error) {
-				console.log(error)
+				if (DEBUG) console.log(error)
 			})
 		},
 		clearUser: function() {

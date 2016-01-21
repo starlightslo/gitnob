@@ -1,6 +1,8 @@
 var myApp = angular.module('myApp')
 
 myApp.controller('MainController', function($rootScope, $scope, $http, $location, $routeParams, $timeout, UserService, GitService) {
+	const DEBUG = false
+
 	$scope.errorMessage = ''
 
 	const REPOSITORY_TAB = 'repository'
@@ -31,7 +33,7 @@ myApp.controller('MainController', function($rootScope, $scope, $http, $location
 			url: '/api/git/repository/create',
 			data: data
 		}).then(function successCallback(response) {
-			console.log(response)
+			if (DEBUG) console.log(response)
 			if (response.status == 200) {
 				if (response.data.code == 200) {
 					$location.path("/repository")
@@ -42,7 +44,7 @@ myApp.controller('MainController', function($rootScope, $scope, $http, $location
 
 			$scope.repositoryName = ''
 		}, function errorCallback(error) {
-			console.log(error)
+			if (DEBUG) console.log(error)
 			$location.path("/")
 		})
 	}
@@ -50,14 +52,14 @@ myApp.controller('MainController', function($rootScope, $scope, $http, $location
 	$scope.deleteRepository = function(repository) {
 		$http.delete('/api/git/repository/' + repository)
 		.then(function successCallback(response) {
-			console.log(response)
+			if (DEBUG) console.log(response)
 			if (response.status == 200) {
 				if (response.data.code == 200) {
 					$scope.getRepositories()
 				}
 			}
 		}, function errorCallback(error) {
-			console.log(error)
+			if (DEBUG) console.log(error)
 			$location.path("/")
 		})
 	}
@@ -68,7 +70,7 @@ myApp.controller('MainController', function($rootScope, $scope, $http, $location
 			method: 'GET',
 			url: '/api/git/repository'
 		}).then(function successCallback(response) {
-			console.log(response)
+			if (DEBUG) console.log(response)
 			if (response.status == 200) {
 				if (response.data.code == 200) {
 					var repositories = response.data.data
@@ -82,16 +84,16 @@ myApp.controller('MainController', function($rootScope, $scope, $http, $location
 				}
 			}
 		}, function errorCallback(error) {
-			console.log(error)
+			if (DEBUG) console.log(error)
 			$location.path("/")
 		})
 	}
 
 	$scope.getRepository = function() {
-		console.log($routeParams.repositoryName)
-		console.log($routeParams.ref)
-		console.log($routeParams.head)
-		console.log($routeParams.branch)
+		if (DEBUG) console.log($routeParams.repositoryName)
+		if (DEBUG) console.log($routeParams.ref)
+		if (DEBUG) console.log($routeParams.head)
+		if (DEBUG) console.log($routeParams.branch)
 		var repositoryName = $routeParams.repositoryName
 		var currentBranch = ""
 		var url = '/api/git/repository/' + repositoryName
@@ -103,7 +105,7 @@ myApp.controller('MainController', function($rootScope, $scope, $http, $location
 			method: 'GET',
 			url: url
 		}).then(function successCallback(response) {
-			console.log(response)
+			if (DEBUG) console.log(response)
 			if (response.status == 200) {
 				if (response.data.code == 200) {
 					GitService.setGitData(repositoryName, response.data.data)
@@ -113,7 +115,7 @@ myApp.controller('MainController', function($rootScope, $scope, $http, $location
 				}
 			}
 		}, function errorCallback(error) {
-			console.log(error)
+			if (DEBUG) console.log(error)
 			$location.path("/")
 		})
 
@@ -122,20 +124,20 @@ myApp.controller('MainController', function($rootScope, $scope, $http, $location
 			method: 'GET',
 			url: '/api/git/repository/' + repositoryName + '/collaborator'
 		}).then(function successCallback(response) {
-			console.log(response)
+			if (DEBUG) console.log(response)
 			if (response.status == 200) {
 				if (response.data.code == 200) {
 					GitService.setCollaboratorList(response.data.data)
 				}
 			}
 		}, function errorCallback(error) {
-			console.log(error)
+			if (DEBUG) console.log(error)
 			$location.path("/")
 		})
 	}
 
 	$scope.addCollaborator = function() {
-		console.log($scope.newCollaborator)
+		if (DEBUG) console.log($scope.newCollaborator)
 		if (!$scope.newCollaborator || $scope.newCollaborator.length == 0) return
 
 		var data = {
@@ -146,7 +148,7 @@ myApp.controller('MainController', function($rootScope, $scope, $http, $location
 			url: '/api/git/repository/' + $routeParams.repositoryName + '/collaborator',
 			data: data
 		}).then(function successCallback(response) {
-			console.log(response)
+			if (DEBUG) console.log(response)
 			if (response.status == 200) {
 				if (response.data.code == 200) {
 					$scope.getRepository()
@@ -159,7 +161,7 @@ myApp.controller('MainController', function($rootScope, $scope, $http, $location
 			}
 			$scope.newCollaborator = ''
 		}, function errorCallback(error) {
-			console.log(error)
+			if (DEBUG) console.log(error)
 			$location.path("/")
 		})
 	}
@@ -169,14 +171,14 @@ myApp.controller('MainController', function($rootScope, $scope, $http, $location
 			method: 'DELETE',
 			url: '/api/git/repository/' + $routeParams.repositoryName + '/collaborator/' + collaborator
 		}).then(function successCallback(response) {
-			console.log(response)
+			if (DEBUG) console.log(response)
 			if (response.status == 200) {
 				if (response.data.code == 200) {
 					$scope.getRepository()
 				}
 			}
 		}, function errorCallback(error) {
-			console.log(error)
+			if (DEBUG) console.log(error)
 			$location.path("/")
 		})
 	}
@@ -239,7 +241,7 @@ myApp.controller('MainController', function($rootScope, $scope, $http, $location
 			url: '/api/user/ssh_key',
 			data: data
 		}).then(function successCallback(response) {
-			console.log(response)
+			if (DEBUG) console.log(response)
 			if (response.status == 200) {
 				if (response.data.code == 200) {
 					$location.path("/sshkey")
@@ -251,7 +253,7 @@ myApp.controller('MainController', function($rootScope, $scope, $http, $location
 			$scope.sshKey = ''
 			$scope.keyName = ''
 		}, function errorCallback(error) {
-			console.log(error)
+			if (DEBUG) console.log(error)
 			$location.path("/")
 		})
 	}
@@ -259,14 +261,14 @@ myApp.controller('MainController', function($rootScope, $scope, $http, $location
 	$scope.deleteSshKey = function(sshKeyName) {
 		$http.delete('/api/user/ssh_key/' + sshKeyName)
 		.then(function successCallback(response) {
-			console.log(response)
+			if (DEBUG) console.log(response)
 			if (response.status == 200) {
 				if (response.data.code == 200) {
 					UserService.setUserData(response.data.data)
 				}
 			}			
 		}, function errorCallback(error) {
-			console.log(error)
+			if (DEBUG) console.log(error)
 			$location.path("/")
 		})
 	}
@@ -276,7 +278,7 @@ myApp.controller('MainController', function($rootScope, $scope, $http, $location
 			method: 'GET',
 			url: '/api/user/'
 		}).then(function successCallback(response) {
-			console.log(response)
+			if (DEBUG) console.log(response)
 			if (response.status == 200) {
 				UserService.setUserData(response.data)
 				$scope.sshKeyList = UserService.getSshKeys()
@@ -284,7 +286,7 @@ myApp.controller('MainController', function($rootScope, $scope, $http, $location
 				$location.path("/")
 			}
 		}, function errorCallback(error) {
-			console.log(error)
+			if (DEBUG) console.log(error)
 			$location.path("/")
 		})
 	}
@@ -294,13 +296,12 @@ myApp.controller('MainController', function($rootScope, $scope, $http, $location
 			username: $scope.username,
 			password: $scope.password,
 		}
-		console.log(data)
 		$http({
 			method: 'POST',
 			url: '/api/user/signin',
 			data: data
 		}).then(function successCallback(response) {
-			console.log(response)
+			if (DEBUG) console.log(response)
 			if (response.status == 200) {
 				if (response.data.code == 200) {
 					UserService.setUserData(response.data.data)
@@ -315,7 +316,7 @@ myApp.controller('MainController', function($rootScope, $scope, $http, $location
 			$scope.username = ''
 			$scope.password = ''
 		}, function errorCallback(error) {
-			console.log(error)
+			if (DEBUG) console.log(error)
 			$location.path("/")
 		})
 	}
@@ -330,7 +331,7 @@ myApp.controller('MainController', function($rootScope, $scope, $http, $location
 			url: '/api/user/signup',
 			data: data
 		}).then(function successCallback(response) {
-			console.log(response)
+			if (DEBUG) console.log(response)
 			if (response.status == 200) {
 				if (response.data.code == 200) {
 					UserService.setUserData(response.data.data)
@@ -348,7 +349,7 @@ myApp.controller('MainController', function($rootScope, $scope, $http, $location
 			$scope.password = ''
 			$scope.checkPassword = ''
 		}, function errorCallback(error) {
-			console.log(error)
+			if (DEBUG) console.log(error)
 			$location.path("/")
 		})
 	}
@@ -363,7 +364,7 @@ myApp.controller('MainController', function($rootScope, $scope, $http, $location
 			url: '/api/user/change_password',
 			data: data
 		}).then(function successCallback(response) {
-			console.log(response)
+			if (DEBUG) console.log(response)
 			if (response.status == 200) {
 				if (response.data.code == 200) {
 					if (UserService.isAdmin()) {
@@ -383,7 +384,7 @@ myApp.controller('MainController', function($rootScope, $scope, $http, $location
 			$scope.newPassword = ''
 			$scope.confirmPassword = ''
 		}, function errorCallback(error) {
-			console.log(error)
+			if (DEBUG) console.log(error)
 			$location.path("/")
 		})
 	}
@@ -393,7 +394,7 @@ myApp.controller('MainController', function($rootScope, $scope, $http, $location
 			method: 'GET',
 			url: '/api/git/co_repository'
 		}).then(function successCallback(response) {
-			console.log(response)
+			if (DEBUG) console.log(response)
 			if (response.status == 200) {
 				if (response.data.code == 200) {
 					$scope.collaborateRepositoryList = response.data.data
@@ -402,7 +403,7 @@ myApp.controller('MainController', function($rootScope, $scope, $http, $location
 				}
 			}
 		}, function errorCallback(error) {
-			console.log(error)
+			if (DEBUG) console.log(error)
 			$location.path("/")
 		})
 	}
@@ -412,20 +413,19 @@ myApp.controller('MainController', function($rootScope, $scope, $http, $location
 			method: 'DELETE',
 			url: '/api/git/co_repository/' + repository
 		}).then(function successCallback(response) {
-			console.log(response)
+			if (DEBUG) console.log(response)
 			if (response.status == 200) {
 				if (response.data.code == 200) {
 					$scope.getCollaborateRepositories()
 				}
 			}
 		}, function errorCallback(error) {
-			console.log(error)
+			if (DEBUG) console.log(error)
 			$location.path("/")
 		})
 	}
 
 	$scope.redirectTo = function(path) {
-		console.log(path)
 		$location.path(path)
 	}
 
@@ -482,14 +482,14 @@ myApp.controller('MainController', function($rootScope, $scope, $http, $location
 			method: 'GET',
 			url: '/api/git/repository/' + repository + '/collaborator'
 		}).then(function successCallback(response) {
-			console.log(response)
+			if (DEBUG) console.log(response)
 			if (response.status == 200) {
 				if (response.data.code == 200) {
 					$scope.repositoryList[index].collaboratorList = response.data.data
 				}
 			}
 		}, function errorCallback(error) {
-			console.log(error)
+			if (DEBUG) console.log(error)
 			$location.path("/")
 		})
 	}

@@ -1,6 +1,8 @@
 var myApp = angular.module('myApp')
 
 myApp.controller('AdminController', function($rootScope, $scope, $http, $location, $routeParams, $timeout, UserService, GitService) {
+	const DEBUG = false
+
 	const REPOSITORY_VIEW = 'repository'
 	const USER_VIEW = 'user'
 
@@ -55,7 +57,7 @@ myApp.controller('AdminController', function($rootScope, $scope, $http, $locatio
 			method: 'GET',
 			url: '/api/admin/git/repository'
 		}).then(function successCallback(response) {
-			console.log(response)
+			if (DEBUG) console.log(response)
 			if (response.status == 200) {
 				if (response.data.code == 200) {
 					var repositories = response.data.data
@@ -69,16 +71,16 @@ myApp.controller('AdminController', function($rootScope, $scope, $http, $locatio
 				}
 			}
 		}, function errorCallback(error) {
-			console.log(error)
+			if (DEBUG) console.log(error)
 			$location.path("/")
 		})
 	}
 
 	$scope.getRepository = function() {
-		console.log($routeParams.repository)
-		console.log($routeParams.ref)
-		console.log($routeParams.head)
-		console.log($routeParams.branch)
+		if (DEBUG) console.log($routeParams.repository)
+		if (DEBUG) console.log($routeParams.ref)
+		if (DEBUG) console.log($routeParams.head)
+		if (DEBUG) console.log($routeParams.branch)
 		var repository = $routeParams.repository
 		var currentBranch = ""
 		var url = '/api/admin/git/repository/' + repository
@@ -90,19 +92,19 @@ myApp.controller('AdminController', function($rootScope, $scope, $http, $locatio
 			method: 'GET',
 			url: url
 		}).then(function successCallback(response) {
-			console.log(response)
+			if (DEBUG) console.log(response)
 			if (response.status == 200) {
 				if (response.data.code == 200) {
 					GitService.setGitData(repository, response.data.data)
 					if (currentBranch.length > 0) {
 						GitService.setCurrentBranch(currentBranch)
 					}
-					console.log('Set Owner: ' + GitService.getOwner())
+					if (DEBUG) console.log('Set Owner: ' + GitService.getOwner())
 					$scope.setOwner(GitService.getOwner())
 				}
 			}
 		}, function errorCallback(error) {
-			console.log(error)
+			if (DEBUG) console.log(error)
 			$location.path("/")
 		})
 	}
@@ -110,14 +112,14 @@ myApp.controller('AdminController', function($rootScope, $scope, $http, $locatio
 	$scope.deleteRepository = function(repository) {
 		$http.delete('/api/admin/git/repository/' + repository)
 		.then(function successCallback(response) {
-			console.log(response)
+			if (DEBUG) console.log(response)
 			if (response.status == 200) {
 				if (response.data.code == 200) {
 					$scope.getRepositories()
 				}
 			}
 		}, function errorCallback(error) {
-			console.log(error)
+			if (DEBUG) console.log(error)
 			$location.path("/")
 		})
 	}
@@ -133,14 +135,14 @@ myApp.controller('AdminController', function($rootScope, $scope, $http, $locatio
 			url: '/api/admin/git/repository/' + $scope.repository + '/owner',
 			data: data
 		}).then(function successCallback(response) {
-			console.log(response)
+			if (DEBUG) console.log(response)
 			if (response.status == 200) {
 				if (response.data.code == 200) {
 					$scope.getRepository()
 				}
 			}
 		}, function errorCallback(error) {
-			console.log(error)
+			if (DEBUG) console.log(error)
 			$location.path("/")
 		})
 	}
@@ -156,7 +158,7 @@ myApp.controller('AdminController', function($rootScope, $scope, $http, $locatio
 			url: '/api/admin/git/repository/' + $scope.repository + '/collaborator',
 			data: data
 		}).then(function successCallback(response) {
-			console.log(response)
+			if (DEBUG) console.log(response)
 			if (response.status == 200) {
 				if (response.data.code == 200) {
 					$scope.getRepository()
@@ -169,7 +171,7 @@ myApp.controller('AdminController', function($rootScope, $scope, $http, $locatio
 			}
 			$scope.newCollaborator = ''
 		}, function errorCallback(error) {
-			console.log(error)
+			if (DEBUG) console.log(error)
 			$location.path("/")
 		})
 	}
@@ -179,14 +181,14 @@ myApp.controller('AdminController', function($rootScope, $scope, $http, $locatio
 			method: 'DELETE',
 			url: '/api/admin/git/repository/' + $scope.repository + '/collaborator/' + collaborator
 		}).then(function successCallback(response) {
-			console.log(response)
+			if (DEBUG) console.log(response)
 			if (response.status == 200) {
 				if (response.data.code == 200) {
 					$scope.getRepository()
 				}
 			}
 		}, function errorCallback(error) {
-			console.log(error)
+			if (DEBUG) console.log(error)
 			$location.path("/")
 		})
 	}
@@ -253,15 +255,15 @@ myApp.controller('AdminController', function($rootScope, $scope, $http, $locatio
 			method: 'GET',
 			url: '/api/admin/user'
 		}).then(function successCallback(response) {
-			console.log(response)
+			if (DEBUG) console.log(response)
 			if (response.status == 200) {
 				if (response.data.code == 200) {
-					console.log(response.data.data)
+					if (DEBUG) console.log(response.data.data)
 					$scope.userList = response.data.data
 				}
 			}
 		}, function errorCallback(error) {
-			console.log(error)
+			if (DEBUG) console.log(error)
 			$location.path("/")
 		})
 	}
@@ -276,7 +278,7 @@ myApp.controller('AdminController', function($rootScope, $scope, $http, $locatio
 			url: '/api/admin/user/',
 			data: data
 		}).then(function successCallback(response) {
-			console.log(response)
+			if (DEBUG) console.log(response)
 			if (response.status == 200) {
 				if (response.data.code == 200) {
 					$location.path("/admin/user")
@@ -293,7 +295,7 @@ myApp.controller('AdminController', function($rootScope, $scope, $http, $locatio
 			$scope.password = ''
 			$scope.checkPassword = ''
 		}, function errorCallback(error) {
-			console.log(error)
+			if (DEBUG) console.log(error)
 			$location.path("/")
 		})
 	}
@@ -305,7 +307,7 @@ myApp.controller('AdminController', function($rootScope, $scope, $http, $locatio
 		}).then(function successCallback(response) {
 			$scope.getUsers()
 		}, function errorCallback(error) {
-			console.log(error)
+			if (DEBUG) console.log(error)
 			$location.path("/")
 		})
 	}
@@ -319,7 +321,7 @@ myApp.controller('AdminController', function($rootScope, $scope, $http, $locatio
 			url: '/api/admin/user/' + $scope.username + '/change_password',
 			data: data
 		}).then(function successCallback(response) {
-			console.log(response)
+			if (DEBUG) console.log(response)
 			if (response.status == 200) {
 				if (response.data.code == 200) {
 					$location.path("/admin/user")
@@ -334,13 +336,13 @@ myApp.controller('AdminController', function($rootScope, $scope, $http, $locatio
 			$scope.newPassword = ''
 			$scope.confirmPassword = ''
 		}, function errorCallback(error) {
-			console.log(error)
+			if (DEBUG) console.log(error)
 			$location.path("/")
 		})
 	}
 
 	$scope.redirectTo = function(path) {
-		console.log(path)
+		if (DEBUG) console.log(path)
 		$location.path(path)
 	}
 
@@ -403,14 +405,14 @@ myApp.controller('AdminController', function($rootScope, $scope, $http, $locatio
 			method: 'GET',
 			url: '/api/admin/git/repository/' + repository
 		}).then(function successCallback(response) {
-			console.log(response)
+			if (DEBUG) console.log(response)
 			if (response.status == 200) {
 				if (response.data.code == 200) {
 					$scope.repositoryList[index].data = response.data.data
 				}
 			}
 		}, function errorCallback(error) {
-			console.log(error)
+			if (DEBUG) console.log(error)
 			$location.path("/")
 		})
 	}

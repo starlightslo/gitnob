@@ -366,7 +366,11 @@ myApp.controller('MainController', function($rootScope, $scope, $http, $location
 			console.log(response)
 			if (response.status == 200) {
 				if (response.data.code == 200) {
-					$location.path("/repository")
+					if (UserService.isAdmin()) {
+						$location.path("/admin")
+					} else {
+						$location.path("/repository")
+					}
 				} else {
 					$scope.errorMessage = response.data.result
 					$scope.isNotMatch = true

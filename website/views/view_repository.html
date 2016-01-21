@@ -3,7 +3,7 @@
 		<h2>{{getCurrentRepositoryName()}}</h2>
 		<hr />
 		<h4><strong>Push an existing repository from the command line</strong></h4>
-		<pre>git remote add origin git@{{getDomain()}}:/{{getCurrentRepositoryName()}}
+		<pre>git remote add origin {{myUsername()}}@{{getDomain()}}:{{getGitPath()}}/{{getCurrentRepositoryName()}}
 git push -u origin master</pre>
 	</div>
 	<div ng-if="!isEmptyRepository()">

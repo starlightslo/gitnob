@@ -18,6 +18,10 @@ myApp.controller('MainController', function($rootScope, $scope, $http, $location
 		}
 	}
 
+	$scope.myUsername = function() {
+		return UserService.getUsername()
+	}
+
 	$scope.createRepository = function() {
 		var data = {
 			name: $scope.repositoryName
@@ -175,6 +179,10 @@ myApp.controller('MainController', function($rootScope, $scope, $http, $location
 			console.log(error)
 			$location.path("/")
 		})
+	}
+
+	$scope.getGitPath = function() {
+		return GitService.getGitPath()
 	}
 
 	$scope.isEmptyRepository = function() {

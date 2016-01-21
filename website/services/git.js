@@ -4,6 +4,7 @@ myApp.factory('GitService', function($rootScope, $http) {
 	var repositoryName = ''
 	var currentBranch = ''
 	var gitData = {
+		gitPath: '/',
 		owner: '',
 		defaultBranch: '',
 		branchList: [],
@@ -17,6 +18,10 @@ myApp.factory('GitService', function($rootScope, $http) {
 		},
 		setGitData: function(name, data) {
 			repositoryName = name
+			gitData.gitPath = data.gitPath
+			if (gitData.gitPath.lastIndexOf('/') == (gitData.gitPath.length-1)) {
+				gitData.gitPath = gitData.gitPath.substring(0, gitData.gitPath.length-1)
+			}
 			gitData.defaultBranch = data.defaultBranch
 			gitData.branchList = data.branchList
 			gitData.tagList = data.tagList
@@ -55,6 +60,9 @@ myApp.factory('GitService', function($rootScope, $http) {
 		},
 		setCurrentBranch: function(branch) {
 			currentBranch = branch
+		},
+		getGitPath: function() {
+			return gitData.gitPath
 		},
 		getDefaultBranch: function() {
 			return gitData.defaultBranch

@@ -213,7 +213,8 @@ var get = function(req, res, next) {
 	if (ref && head && branch) {
 		branch = ref + '/' + head + '/' + branch
 	}
-	var repositoryPath = path.join(req.app.settings.config.gitPath, repository)
+	var gitPath = req.app.settings.config.gitPath
+	var repositoryPath = path.join(gitPath, repository)
 
 	// Check permission
 	if (userData.repositoryList.indexOf(repository) < 0) {
@@ -314,6 +315,7 @@ var get = function(req, res, next) {
 			code: 200,
 			result: 'OK',
 			data: {
+				gitPath: gitPath,
 				defaultBranch: defaultBranch,
 				branchList: branchList,
 				tagList: tagList,

@@ -296,7 +296,11 @@ myApp.controller('MainController', function($rootScope, $scope, $http, $location
 			if (response.status == 200) {
 				if (response.data.code == 200) {
 					UserService.setUserData(response.data.data)
-					$location.path("/repository")
+					if (UserService.isAdmin()) {
+						$location.path("/admin")
+					} else {
+						$location.path("/repository")
+					}
 				}
 			}
 

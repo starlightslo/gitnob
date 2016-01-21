@@ -172,6 +172,10 @@ var MyGit = function(db, dbType, runUser) {
 			var repositoryList = []
 			var repositories = fs.readdirSync(rootPath)
 			var numOfRepositories = repositories.length
+			if (numOfRepositories == 0) {
+				deferred.resolve(repositoryList)
+			}
+
 			for (var i in repositories) {
 				var repository = repositories[i]
 				var repositoryPath = path.join(rootPath, repository)

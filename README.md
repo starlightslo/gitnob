@@ -153,8 +153,6 @@ $ nodejs index.js
 
 Then visit http://your_domain/
 
-**Test domain**: http://gitnob.info/
-
 **Admin account**: admin / admin
 
 
